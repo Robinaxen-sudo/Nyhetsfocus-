@@ -219,9 +219,29 @@ async function loadSettings(){
 }
 async function checkAdmin(){
   const {data:{session}}=await sb.auth.getSession();
-  if(!session){admin=false;return}
-  const {data}=await sb.rpc('is_admin');admin=data===true;
-  if(admin){const {count}=await sb.from('tips').select('id',{count:'exact',head:true}).eq('status','new');newTips=count||0}
+
+  console.log("SESSION:", session);
+
+  if(!session){
+    admin=false;
+    return;
+  }
+
+  const {data,error}=await sb.rpc('is_admin');
+
+  console.log("IS_ADMIN:", data);
+  console.log("ERROR:", error);
+  console.log("USER ID:", session.user.id);
+
+  admin=data===true;
+
+  if(admin){
+    const {count}=await sb.from('tips')
+      .select('id',{count:'exact',head:true})
+      .eq('status','new');
+
+    newTips=count||0;
+  }
 }
 async function loadList(){
   const {data,error}=await sb.from('articles').select(LIST_COLS).order('date',{ascending:false}).order('created_at',{ascending:false});
