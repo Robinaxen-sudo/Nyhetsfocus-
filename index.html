@@ -15,12 +15,15 @@ header.site{background:var(--green);color:#fff}
 .wrap{max-width:1100px;margin:0 auto;padding:0 18px}
 .top{display:flex;align-items:center;justify-content:space-between;padding:16px 0;gap:12px;flex-wrap:wrap}
 .logo{
-font-weight:800;
-font-size:30px;
-letter-spacing:-1px;
-display:flex;
-align-items:center;
-gap:12px;
+    font-weight:800;
+    font-size:28px;
+    line-height:1;
+    letter-spacing:-.5px;
+    text-decoration:none;
+    color:#fff;
+    display:inline-flex;
+    align-items:center;
+    gap:12px;
 }
 ;line-height:1;letter-spacing:-.5px;text-decoration:none;color:#fff;display:inline-flex;align-items:center;gap:9px}
 .logoimg{
@@ -90,7 +93,7 @@ article.full .cover{
     background-repeat:no-repeat;
     background-size:contain;
     background-color:#f3f7f1;
-};
+}
 article.full .in{padding:32px 40px 42px}
 article.full h1{font-size:40px;line-height:1.1;margin:12px 0 12px;letter-spacing:-1px}
 article.full .lead{font-size:20px;color:#41574a;margin:0 0 20px;font-weight:500}
@@ -182,7 +185,14 @@ const today=()=>new Date().toISOString().slice(0,10);
 const fmt=d=>{try{return new Date(d).toLocaleDateString('sv-SE',{year:'numeric',month:'long',day:'numeric'})}catch(e){return d}};
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2600)}
 
-const configured=!/DITT-PROJEKT|DIN-ANON/.test(SUPABASE_URL+SUPABASE_ANON_KEY);
+const SUPABASE_URL = 'https://qwkrffkdsjtohkpuflyr.supabase.co';
+
+const SUPABASE_ANON_KEY =
+'sb_publishable_tFMUDfLV3IsgdTGAg83PtA_7vRtgMFU';
+
+const configured = !/DITT-PROJEKT|DIN-ANON/.test(
+  SUPABASE_URL + SUPABASE_ANON_KEY
+);
 const sb=configured?supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null;
 const DEF={name:'Nyhetsfocus',tagline:'Nyheter, intervjuer och drama från den svenska influencervärlden',cats:['Nyheter','Intervjuer','Skvaller & drama','Influencers','Sociala medier','Politik']};
 let settings={...DEF}, admin=false, list=[], seq=0, tips=[], newTips=0;
@@ -231,8 +241,8 @@ async function getOne(id){
 
 // ---------- layout ----------
 function chrome(){
-  $('#logo').innerHTML='<img src="IMG_0520.PNG" class="logoimg" alt="Nyhetsfocus"> <span>Nyhetsfocus</span>';
-'+esc(settings.name);
+$('#logo').innerHTML =
+  '<img src="IMG_0520.PNG" class="logoimg" alt="Nyhetsfocus"> <span>Nyhetsfocus</span>';
   document.title=settings.name;
   $('#tagline').textContent=settings.tagline;
   $('#adminLinks').innerHTML=admin
