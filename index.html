@@ -24,11 +24,22 @@ gap:12px;
 }
 ;line-height:1;letter-spacing:-.5px;text-decoration:none;color:#fff;display:inline-flex;align-items:center;gap:9px}
 .logoimg{
-height:48px;
-width:48px;
+height:56px;
+width:56px;
 border-radius:50%;
 object-fit:cover;
 box-shadow:0 3px 10px rgba(0,0,0,.15);
+}
+.logo{
+font-weight: 800;
+font-size: 28px;
+line-height:1;
+letter-spacing:-.5px;
+text-decoration:none;
+color:#fff;
+display:inline-flex;
+align-itmes:center;
+gap:12px;
 }
 .tag{font-size:12.5px;color:#9fc4ad;margin-top:5px}
 nav.cats{background:rgba(243,247,241,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
@@ -220,7 +231,7 @@ async function getOne(id){
 
 // ---------- layout ----------
 function chrome(){
-  $('#logo').innerHTML='<img src="logo.png" class="logoimg" alt="Nyhetsfocus"> <span>Nyhetsfocus</span>';
+  $('#logo').innerHTML='<img src="IMG_0520.PNG" class="logoimg" alt="Nyhetsfocus"> <span>Nyhetsfocus</span>';
 '+esc(settings.name);
   document.title=settings.name;
   $('#tagline').textContent=settings.tagline;
