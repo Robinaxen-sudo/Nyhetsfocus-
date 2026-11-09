@@ -15,23 +15,20 @@ header.site{background:var(--green);color:#fff}
 .wrap{max-width:1100px;margin:0 auto;padding:0 18px}
 .top{display:flex;align-items:center;justify-content:space-between;padding:16px 0;gap:12px;flex-wrap:wrap}
 .logo{
-  font-weight:800;
-  font-size:28px;
-  line-height:1;
-  letter-spacing:-.5px;
-  text-decoration:none;
-  color:#fff;
-  display:inline-flex;
-  align-items:center;
-  gap:12px;
+font-weight:800;
+font-size:30px;
+letter-spacing:-1px;
+display:flex;
+align-items:center;
+gap:12px;
 }
-
+;line-height:1;letter-spacing:-.5px;text-decoration:none;color:#fff;display:inline-flex;align-items:center;gap:9px}
 .logoimg{
-  width:56px;
-  height:56px;
-  border-radius:50%;
-  object-fit:cover;
-  box-shadow:0 3px 10px rgba(0,0,0,.15);
+height:56px;
+width:56px;
+border-radius:50%;
+object-fit:cover;
+box-shadow:0 3px 10px rgba(0,0,0,.15);
 }
 .logo{
 font-weight: 800;
@@ -93,7 +90,7 @@ article.full .cover{
     background-repeat:no-repeat;
     background-size:contain;
     background-color:#f3f7f1;
-}
+};
 article.full .in{padding:32px 40px 42px}
 article.full h1{font-size:40px;line-height:1.1;margin:12px 0 12px;letter-spacing:-1px}
 article.full .lead{font-size:20px;color:#41574a;margin:0 0 20px;font-weight:500}
@@ -219,29 +216,9 @@ async function loadSettings(){
 }
 async function checkAdmin(){
   const {data:{session}}=await sb.auth.getSession();
-
-  console.log("SESSION:", session);
-
-  if(!session){
-    admin=false;
-    return;
-  }
-
-  const {data,error}=await sb.rpc('is_admin');
-
-  console.log("IS_ADMIN:", data);
-  console.log("ERROR:", error);
-  console.log("USER ID:", session.user.id);
-
-  admin=data===true;
-
-  if(admin){
-    const {count}=await sb.from('tips')
-      .select('id',{count:'exact',head:true})
-      .eq('status','new');
-
-    newTips=count||0;
-  }
+  if(!session){admin=false;return}
+  const {data}=await sb.rpc('is_admin');admin=data===true;
+  if(admin){const {count}=await sb.from('tips').select('id',{count:'exact',head:true}).eq('status','new');newTips=count||0}
 }
 async function loadList(){
   const {data,error}=await sb.from('articles').select(LIST_COLS).order('date',{ascending:false}).order('created_at',{ascending:false});
@@ -254,8 +231,8 @@ async function getOne(id){
 
 // ---------- layout ----------
 function chrome(){
-  $('#logo').innerHTML='<img src="IMG_0520.png" class="logoimg" alt="Nyhetsfocus"><span>Nyhetsfocus</span>';
-
+  $('#logo').innerHTML='<img src="IMG_0520.PNG" class="logoimg" alt="Nyhetsfocus"> <span>Nyhetsfocus</span>';
+'+esc(settings.name);
   document.title=settings.name;
   $('#tagline').textContent=settings.tagline;
   $('#adminLinks').innerHTML=admin
@@ -304,49 +281,16 @@ async function view(id){
 function login(){
   cats('null');
   $('#app').innerHTML='<div class="panel" style="max-width:420px;margin:50px auto"><h2>Logga in</h2><label>E-post</label><input type="email" id="em" autocomplete="username"><label>Lösenord</label><input type="password" id="pw" autocomplete="current-password"><div class="actions"><button class="btn" id="go">Logga in</button></div><div class="note">Endast redaktörer har tillgång. Besökare behöver inte logga in.</div></div>';
-
   const go=async()=>{
-
-    const b=$('#go');
-    b.disabled=true;
-
-    const result = await sb.auth.signInWithPassword({
-  email:$('#em').value.trim(),
-  password:$('#pw').value
-});
-
-console.log("LOGIN RESULT:", result);
-    
-const {data:{session}} = await sb.auth.getSession();
-console.log("SESSION AFTER LOGIN:", session);
-
-    const {data:{session}} = await sb.auth.getSession();
-
-    console.log("SESSION AFTER LOGIN:", session);
-
+    const b=$('#go');b.disabled=true;
+    const {error}=await sb.auth.signInWithPassword({email:$('#em').value.trim(),password:$('#pw').value});
     b.disabled=false;
-
-    if(error) return toast('Fel e-post eller lösenord');
-
+    if(error)return toast('Fel e-post eller lösenord');
     await checkAdmin();
-
-    if(!admin){
-      toast('Kontot saknar redaktörsbehörighet (se README)');
-      await sb.auth.signOut();
-      return;
-    }
-
-    location.hash='#/admin';
-    render();
+    if(!admin){toast('Kontot saknar redaktörsbehörighet (se README)');await sb.auth.signOut();return}
+    location.hash='#/admin';render();
   };
-
-  $('#go').onclick=go;
-
-  $('#app').querySelectorAll('input').forEach(i=>
-    i.onkeydown=e=>{
-      if(e.key==='Enter') go();
-    }
-  );
+  $('#go').onclick=go;$('#app').querySelectorAll('input').forEach(i=>i.onkeydown=e=>{if(e.key==='Enter')go()});
 }
 
 function adminPage(){
