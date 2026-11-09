@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nyhetsfocus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f7f1;--card:#fff;--ink:#10261a;--muted:#5f7266;--line:#e1e9df;--green:#0b2e1b;--green2:#124a2b;--lime:#b8f26b;--accent:#0b2e1b;--accent2:#0b2e1b;--radius:20px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+a{color:inherit}
+header.site{background:var(--green);color:#fff}
+.wrap{max-width:1100px;margin:0 auto;padding:0 18px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:16px 0;gap:12px;flex-wrap:wrap}
+.logo{font-weight:800;font-size:24px;line-height:1;letter-spacing:-.5px;text-decoration:none;color:#fff;display:inline-flex;align-items:center;gap:9px}
+.logo .mark{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:10px;background:var(--lime);color:var(--green);font-size:15px}
+.tag{font-size:12.5px;color:#9fc4ad;margin-top:5px}
+nav.cats{background:rgba(243,247,241,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav.cats .wrap{display:flex;gap:8px;overflow-x:auto;padding:10px 14px;scrollbar-width:none}
+nav.cats a{padding:8px 15px;font-size:14px;font-weight:700;text-decoration:none;color:var(--ink);white-space:nowrap;border-radius:999px;background:#fff;border:1px solid var(--line);cursor:pointer;transition:.15s}
+nav.cats a:hover{border-color:var(--green);transform:translateY(-1px)}
+nav.cats a.on{background:var(--green);color:#fff;border-color:var(--green)}
+.btn{background:var(--green);color:#fff;border:0;border-radius:999px;padding:10px 20px;font:700 14px 'Plus Jakarta Sans',sans-serif;cursor:pointer;text-decoration:none;display:inline-block;transition:.15s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(11,46,27,.22)}
+.btn.lime{background:var(--lime);color:var(--green)}
+.btn.alt{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.dark{background:var(--green2)}
+.btn.danger{background:#fff;color:#b00020;border:1px solid #f0c0c8}
+.btn.sm{padding:7px 13px;font-size:13px}
+.btn[disabled]{opacity:.5;cursor:wait}
+header.site .btn.alt{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.25)}
+header.site .btn:not(.alt):not(.dark){background:var(--lime);color:var(--green)}
+header.site .btn.dark{background:#fff;color:var(--green)}
+.intro{background:radial-gradient(1200px 400px at 85% -20%,#1d7a45 0%,transparent 60%),linear-gradient(135deg,var(--green) 0%,#0f4027 100%);color:#fff;border-radius:28px;padding:44px 40px;margin:22px 0 8px;position:relative;overflow:hidden}
+.intro:after{content:"🔥 ⭐ 🎤 📱";position:absolute;right:26px;bottom:14px;font-size:34px;letter-spacing:10px;opacity:.9}
+.badge{display:inline-block;background:rgba(184,242,107,.16);color:var(--lime);border:1px solid rgba(184,242,107,.4);padding:6px 14px;border-radius:999px;font-size:13px;font-weight:700;margin-bottom:16px}
+.intro h1{font-size:42px;line-height:1.08;margin:0 0 12px;letter-spacing:-1px;max-width:640px}
+.intro h1 em{font-style:normal;color:var(--lime)}
+.intro p{margin:0 0 22px;color:#cfe5d6;font-size:17px;max-width:560px}
+.search{display:flex;gap:8px;margin:18px 0 6px}
+.search input{flex:1;padding:13px 18px;border:1px solid var(--line);border-radius:999px;font:500 15px 'Plus Jakarta Sans',sans-serif;background:#fff}
+.sec{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800;margin:30px 0 4px;letter-spacing:-.3px}
+.hero{display:grid;grid-template-columns:1.35fr 1fr;background:var(--card);border-radius:var(--radius);overflow:hidden;margin:16px 0;border:1px solid var(--line);cursor:pointer;transition:.2s;box-shadow:0 2px 0 rgba(11,46,27,.03)}
+.hero:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(11,46,27,.12)}
+.hero .img{min-height:320px;background:#cfe0d3 center/cover}
+.hero .body{padding:30px;display:flex;flex-direction:column;justify-content:center}
+.hero h2{font-size:30px;line-height:1.15;margin:10px 0 12px;letter-spacing:-.6px}
+.hero p{color:#41574a;margin:0 0 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin:16px 0 44px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;cursor:pointer;display:flex;flex-direction:column;transition:.2s}
+.card:hover{transform:translateY(-5px);box-shadow:0 16px 34px rgba(11,46,27,.13)}
+.card .img{height:180px;background:#cfe0d3 center/cover}
+.card .body{padding:18px;display:flex;flex-direction:column;flex:1}
+.card h3{margin:10px 0 8px;font-size:19px;line-height:1.25;letter-spacing:-.3px}
+.card p{margin:0 0 14px;color:#41574a;font-size:14.5px;flex:1}
+.meta{font-size:12.5px;color:var(--muted);font-weight:500}
+.pill{display:inline-block;font-weight:800;font-size:12px;padding:5px 11px;border-radius:999px;background:#e5f6d3;color:#1d5a2c}
+.draft{background:#fff3cd;color:#7a5b00;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:800;margin-left:6px}
+article.full{background:#fff;border:1px solid var(--line);border-radius:28px;max-width:820px;margin:26px auto 50px;overflow:hidden}
+article.full .cover{height:400px;background:#cfe0d3 center/cover}
+article.full .in{padding:32px 40px 42px}
+article.full h1{font-size:40px;line-height:1.1;margin:12px 0 12px;letter-spacing:-1px}
+article.full .lead{font-size:20px;color:#41574a;margin:0 0 20px;font-weight:500}
+.content{font-size:17.5px;line-height:1.75}
+.content img{max-width:100%;border-radius:14px}
+.content h2,.content h3{margin:30px 0 8px;letter-spacing:-.4px}
+.content a{color:#0f6b3a;font-weight:600}
+.content blockquote{border-left:5px solid var(--lime);background:#f3f9ec;border-radius:0 14px 14px 0;margin:20px 0;padding:10px 20px;color:#2b4234;font-weight:600}
+.empty{text-align:center;color:var(--muted);padding:60px 0}
+footer{background:var(--green);color:#9fc4ad;padding:34px 0;font-size:13.5px;margin-top:20px}
+footer .wrap{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:center}
+footer b{color:#fff;font-size:16px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin:24px 0}
+.panel h2{margin:0 0 14px;letter-spacing:-.4px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:11px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{font-size:12px;text-transform:uppercase;color:var(--muted);letter-spacing:.5px}
+label{display:block;font-weight:700;font-size:13px;margin:14px 0 5px}
+input[type=text],input[type=email],input[type=password],input[type=date],select,textarea{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:12px;font:500 15px 'Plus Jakarta Sans',sans-serif;background:#fff}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--lime);border-color:var(--green)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.toolbar{display:flex;flex-wrap:wrap;gap:4px;border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0;padding:6px;background:#f6faf4}
+.toolbar button{border:1px solid var(--line);background:#fff;border-radius:8px;min-width:34px;height:32px;cursor:pointer;font-size:14px}
+.toolbar button:hover{background:#e5f6d3}
+#editor{min-height:300px;border:1px solid var(--line);border-radius:0 0 12px 12px;padding:14px;font:17px/1.7 'Plus Jakarta Sans',sans-serif;outline:none;background:#fff}
+.thumb{width:160px;height:100px;border-radius:12px;background:#cfe0d3 center/cover;border:1px solid var(--line);margin-top:8px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:12px 22px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;transition:.3s;pointer-events:none;z-index:50;max-width:90%;text-align:center}
+.toast.show{opacity:1}
+.note{background:#f3f9ec;border-radius:12px;padding:12px 14px;font-size:13.5px;color:#41574a;margin-top:16px}
+.err{background:#fde8ea;color:#8a0016}
+.contact{display:grid;grid-template-columns:1fr 1.35fr;gap:20px;align-items:start;margin-bottom:30px}
+.contact .panel{margin:20px 0 0}
+.intro.small{padding:30px 34px}.intro.small h1{font-size:34px}.intro.small:after{content:"💌 🔒"}
+.socs{display:flex;gap:8px;flex-wrap:wrap}
+.soc{display:inline-block;padding:8px 14px;border-radius:999px;background:#f3f9ec;border:1px solid var(--line);font-weight:700;font-size:13.5px;text-decoration:none}
+.soc:hover{background:var(--lime)}
+footer a{color:#cfe5d6}
+details.tip{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0;background:#fff}
+details.tip.new{border-color:var(--lime);background:#f8fdf0}
+details.tip summary{cursor:pointer;list-style:none;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+details.tip summary::-webkit-details-marker{display:none}
+.tipbody{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+@media(max-width:720px){.contact{grid-template-columns:1fr}}
+.cmts{max-width:820px;margin:-26px auto 50px}
+.cmt{padding:14px 0;border-bottom:1px solid var(--line)}
+.cmt:last-of-type{border-bottom:0}
+.cmeta{font-size:13px;color:var(--muted);margin-bottom:4px}
+.cbody{white-space:pre-wrap;word-wrap:break-word;font-size:15.5px}
+.cform{margin-top:14px;padding-top:6px;border-top:2px solid var(--line)}
+@media(max-width:720px){.hero{grid-template-columns:1fr}.hero .img{min-height:210px}.row{grid-template-columns:1fr}article.full .in{padding:22px 18px}article.full h1{font-size:28px}article.full .cover{height:230px}.hero h2{font-size:24px}.intro{padding:30px 22px;border-radius:22px}.intro h1{font-size:30px}.intro:after{display:none}}
+</style>
+</head>
+<body>
+<header class="site"><div class="wrap top">
+  <div><a class="logo" href="#/" id="logo"></a><div class="tag" id="tagline"></div></div>
+  <div class="ui" id="adminLinks"></div>
+</div></header>
+<nav class="cats"><div class="wrap" id="cats"></div></nav>
+<main class="wrap" id="app"></main>
+<footer><div class="wrap" id="foot"></div></footer>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ====== FYLL I DINA UPPGIFTER (Supabase → Project Settings → API) ======
+const SUPABASE_URL = 'https://qwkrffkdsjtohkpuflyr.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_tFMUDfLV3IsgdTGAg83PtA_7vRtgMFU';
+// =======================================================================
+const CONTACT_EMAIL = 'Robinsmail.inbox@gmail.com';
+// Sätt till true ENDAST när du faktiskt har utgivningsbevis (beviljas av Myndigheten för press, radio och tv).
+// Är det false döljs utgivningsbevis-texten och sidfotens rad om utgivningsbevis.
+const UTGIVNINGSBEVIS = true;
+// Sociala medier: klistra in hela länkar mellan citattecknen (tomma visas inte)
+const SOCIALS = { instagram:'', tiktok:'', youtube:'', x:'', facebook:'' };
+
+(function(){
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>new Date().toISOString().slice(0,10);
+const fmt=d=>{try{return new Date(d).toLocaleDateString('sv-SE',{year:'numeric',month:'long',day:'numeric'})}catch(e){return d}};
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2600)}
+
+const configured=!/DITT-PROJEKT|DIN-ANON/.test(SUPABASE_URL+SUPABASE_ANON_KEY);
+const sb=configured?supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null;
+const DEF={name:'Nyhetsfocus',tagline:'Nyheter, intervjuer och drama från den svenska influencervärlden',cats:['Nyheter','Intervjuer','Skvaller & drama','Influencers','Sociala medier','Politik']};
+let settings={...DEF}, admin=false, list=[], seq=0, tips=[], newTips=0;
+
+function clean(html){
+  const d=new DOMParser().parseFromString('<div>'+(html||'')+'</div>','text/html');
+  const ok=['P','BR','B','STRONG','I','EM','U','H2','H3','UL','OL','LI','A','BLOCKQUOTE','IMG','DIV','SPAN','HR'];
+  (function walk(n){[...n.children].forEach(c=>{
+    if(!ok.includes(c.tagName)){c.replaceWith(...c.childNodes);return}
+    [...c.attributes].forEach(a=>{
+      const keep=(c.tagName==='A'&&(a.name==='href'||a.name==='target'))||(c.tagName==='IMG'&&(a.name==='src'||a.name==='alt'));
+      if(!keep)c.removeAttribute(a.name);
+    });
+    if(c.tagName==='A'){const h=c.getAttribute('href')||'';if(!/^(https?:|mailto:|#)/i.test(h.trim()))c.removeAttribute('href');c.setAttribute('rel','noopener');c.setAttribute('target','_blank')}
+    if(c.tagName==='IMG'){const s=c.getAttribute('src')||'';if(!/^https?:/i.test(s))c.remove()}
+    walk(c)})})(d.body.firstChild);
+  return d.body.firstChild.innerHTML;
+}
+const safeUrl=u=>/^https?:/i.test(u||'')?u.replace(/'/g,'%27').replace(/"/g,'%22').replace(/\)/g,'%29').replace(/\(/g,'%28'):'';
+const bg=a=>a.image?"background-image:url('"+safeUrl(a.image)+"')":'background:linear-gradient(135deg,#c8102e,#111)';
+const EMO={'Nyheter':'📰','Intervjuer':'🎤','Skvaller & drama':'🔥','Influencers':'⭐','Sociala medier':'📱','Politik':'🏛️','YouTube':'▶️','Trender':'📈'};
+const emo=c=>EMO[c]||'✨';
+const PAL=[['#e5f6d3','#1d5a2c'],['#ffe1ea','#a3173f'],['#e8e3ff','#4b2fb0'],['#ffedd5','#b45309'],['#dbeafe','#1d4ed8'],['#fef9c3','#854d0e']];
+const catStyle=c=>{let i=settings.cats.indexOf(c);if(i<0)i=0;const p=PAL[i%PAL.length];return 'background:'+p[0]+';color:'+p[1]};
+const LIST_COLS='id,title,summary,cat,author,image,date,status';
+
+// ---------- data ----------
+async function loadSettings(){
+  const {data}=await sb.from('site_settings').select('*').eq('id',1).maybeSingle();
+  if(data)settings={name:data.name||DEF.name,tagline:data.tagline??DEF.tagline,cats:(data.cats&&data.cats.length)?data.cats:DEF.cats};
+}
+async function checkAdmin(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){admin=false;return}
+  const {data}=await sb.rpc('is_admin');admin=data===true;
+  if(admin){const {count}=await sb.from('tips').select('id',{count:'exact',head:true}).eq('status','new');newTips=count||0}
+}
+async function loadList(){
+  const {data,error}=await sb.from('articles').select(LIST_COLS).order('date',{ascending:false}).order('created_at',{ascending:false});
+  if(error){toast('Kunde inte hämta artiklar');list=[];return}
+  list=data||[];
+}
+async function getOne(id){
+  const {data}=await sb.from('articles').select('*').eq('id',id).maybeSingle();return data;
+}
+
+// ---------- layout ----------
+function chrome(){
+  $('#logo').innerHTML='<span class="mark">●</span>'+esc(settings.name);
+  document.title=settings.name;
+  $('#tagline').textContent=settings.tagline;
+  $('#adminLinks').innerHTML=admin
+    ?'<a class="btn sm alt" href="#/admin">Hantera'+(newTips?' ('+newTips+')':'')+'</a> <a class="btn sm" href="#/admin/ny">+ Ny artikel</a> <button class="btn sm dark" id="lo">Logga ut</button>'
+    :'<a class="btn sm" href="#/kontakt">💌 Tipsa oss</a> <a class="btn sm alt" href="#/admin">Admin</a>';
+  const lo=$('#lo');if(lo)lo.onclick=async()=>{await sb.auth.signOut();admin=false;location.hash='#/';render()};
+  $('#foot').innerHTML='<div><b>'+esc(settings.name)+'</b><br>'+esc(settings.tagline)+'<br><a href="#/kontakt">💌 Kontakt &amp; tipsa</a></div><div style="text-align:right">© '+new Date().getFullYear()+' '+esc(settings.name)+'<br>Ansvarig utgivare: Robin Axén'+(UTGIVNINGSBEVIS?'<br>Innehar utgivningsbevis':'')+'</div>';
+}
+function cats(active){
+  $('#cats').innerHTML='<a data-c="" class="'+(!active?'on':'')+'">🔥 Senaste</a>'+settings.cats.map(c=>'<a data-c="'+esc(c)+'" class="'+(active===c?'on':'')+'">'+emo(c)+' '+esc(c)+'</a>').join('');
+  $('#cats').querySelectorAll('a').forEach(a=>a.onclick=()=>{location.hash=a.dataset.c?'#/kat/'+encodeURIComponent(a.dataset.c):'#/'});
+}
+const draftTag=a=>a.status!=='published'?'<span class="draft">UTKAST</span>':'';
+const card=a=>'<div class="card" data-id="'+a.id+'"><div class="img" style="'+bg(a)+'"></div><div class="body"><span class="pill" style="'+catStyle(a.cat)+'">'+emo(a.cat)+' '+esc(a.cat)+draftTag(a)+'</span><h3>'+esc(a.title)+'</h3><p>'+esc(a.summary)+'</p><div class="meta">'+fmt(a.date)+' · '+esc(a.author)+'</div></div></div>';
+
+function home(cat,q){
+  cats(cat);
+  let l=list;
+  if(cat)l=l.filter(a=>a.cat===cat);
+  if(q)l=l.filter(a=>(a.title+' '+a.summary).toLowerCase().includes(q.toLowerCase()));
+  let h=(!cat&&!q)?'<section class="intro"><span class="badge">🔥 Färskt just nu</span><h1>Allt om <em>influencers</em>, drama &amp; nyheter</h1><p>'+esc(settings.tagline)+'</p><a class="btn lime" href="#senaste" onclick="document.getElementById(\'senaste\').scrollIntoView({behavior:\'smooth\'});return false">Läs senaste ↓</a></section>':'';
+  h+='<div class="search"><input id="q" type="text" placeholder="Sök bland nyheter…" value="'+esc(q||'')+'"></div>';
+  if(!l.length)h+='<div class="empty">Inga artiklar hittades.</div>';
+  else{
+    let rest=l;
+    if(!q){const f=l[0];rest=l.slice(1);
+      h+='<div class="sec" id="senaste">⚡ Senaste nytt</div><div class="hero" data-id="'+f.id+'"><div class="img" style="'+bg(f)+'"></div><div class="body"><span class="pill" style="'+catStyle(f.cat)+'">'+emo(f.cat)+' '+esc(f.cat)+draftTag(f)+'</span><h2>'+esc(f.title)+'</h2><p>'+esc(f.summary)+'</p><div class="meta">'+fmt(f.date)+' · '+esc(f.author)+'</div></div></div>'}
+    if(rest.length&&!q)h+='<div class="sec">🗞️ Mer att läsa</div>';
+    h+='<div class="grid">'+rest.map(card).join('')+'</div>';
+  }
+  $('#app').innerHTML=h;
+  $('#q').oninput=e=>{const v=e.target.value;clearTimeout(window._t);window._t=setTimeout(()=>{home(cat,v);const i=$('#q');i.focus();i.setSelectionRange(v.length,v.length)},250)};
+  $('#app').querySelectorAll('[data-id]').forEach(el=>el.onclick=()=>location.hash='#/artikel/'+el.dataset.id);
+}
+
+async function view(id){
+  cats('');
+  const a=await getOne(id);
+  if(!a){$('#app').innerHTML='<div class="empty">Artikeln finns inte.<br><br><a class="btn" href="#/">Till startsidan</a></div>';return}
+  document.title=a.title+' – '+settings.name;
+  $('#app').innerHTML='<article class="full">'+(a.image?'<div class="cover" style="'+bg(a)+'"></div>':'')+'<div class="in"><span class="pill" style="'+catStyle(a.cat)+'">'+emo(a.cat)+' '+esc(a.cat)+draftTag(a)+'</span><h1>'+esc(a.title)+'</h1><p class="lead">'+esc(a.summary)+'</p><div class="meta" style="margin-bottom:22px">'+fmt(a.date)+' · av '+esc(a.author)+'</div><div class="content">'+clean(a.content)+'</div><div class="actions"><a class="btn alt" href="#/">← Alla nyheter</a>'+(admin?'<a class="btn" href="#/admin/redigera/'+a.id+'">Redigera</a>':'')+'<button class="btn alt" id="sh">Kopiera länk</button></div></div></article>';
+  $('#sh').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(location.href);toast('Länk kopierad')};
+  commentsSection(a);
+}
+
+function login(){
+  cats('null');
+  $('#app').innerHTML='<div class="panel" style="max-width:420px;margin:50px auto"><h2>Logga in</h2><label>E-post</label><input type="email" id="em" autocomplete="username"><label>Lösenord</label><input type="password" id="pw" autocomplete="current-password"><div class="actions"><button class="btn" id="go">Logga in</button></div><div class="note">Endast redaktörer har tillgång. Besökare behöver inte logga in.</div></div>';
+  const go=async()=>{
+    const b=$('#go');b.disabled=true;
+    const {error}=await sb.auth.signInWithPassword({email:$('#em').value.trim(),password:$('#pw').value});
+    b.disabled=false;
+    if(error)return toast('Fel e-post eller lösenord');
+    await checkAdmin();
+    if(!admin){toast('Kontot saknar redaktörsbehörighet (se README)');await sb.auth.signOut();return}
+    location.hash='#/admin';render();
+  };
+  $('#go').onclick=go;$('#app').querySelectorAll('input').forEach(i=>i.onkeydown=e=>{if(e.key==='Enter')go()});
+}
+
+function adminPage(){
+  cats('null');
+  $('#app').innerHTML='<div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px"><h2 style="margin:0">Hantera artiklar</h2><a class="btn" href="#/admin/ny">+ Ny artikel</a></div><div style="overflow-x:auto;margin-top:12px"><table><tr><th>Rubrik</th><th>Kategori</th><th>Datum</th><th>Status</th><th></th></tr>'+
+  (list.length?list.map(a=>'<tr><td><b>'+esc(a.title)+'</b></td><td>'+esc(a.cat)+'</td><td>'+esc(a.date)+'</td><td>'+(a.status==='published'?'✅ Publicerad':'📝 Utkast')+'</td><td style="white-space:nowrap"><button class="btn sm alt" data-v="'+a.id+'">Visa</button> <button class="btn sm alt" data-e="'+a.id+'">Redigera</button> <button class="btn sm alt" data-t="'+a.id+'">'+(a.status==='published'?'Avpublicera':'Publicera')+'</button> <button class="btn sm danger" data-d="'+a.id+'">Ta bort</button></td></tr>').join(''):'<tr><td colspan="5" class="empty">Inga artiklar än.</td></tr>')+'</table></div></div>'+
+  tipsPanel()+'<div class="panel"><h2>Inställningar</h2><div class="row"><div><label>Sidans namn</label><input type="text" id="sn" value="'+esc(settings.name)+'"></div><div><label>Underrubrik</label><input type="text" id="st" value="'+esc(settings.tagline)+'"></div></div><label>Kategorier (kommaseparerade)</label><input type="text" id="sc" value="'+esc(settings.cats.join(', '))+'"><div class="actions"><button class="btn" id="ss">Spara inställningar</button></div></div>';
+  $('#app').querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>location.hash='#/artikel/'+b.dataset.v);
+  $('#app').querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>location.hash='#/admin/redigera/'+b.dataset.e);
+  $('#app').querySelectorAll('[data-t]').forEach(b=>b.onclick=async()=>{
+    const a=list.find(x=>x.id===b.dataset.t);const ns=a.status==='published'?'draft':'published';
+    const {error}=await sb.from('articles').update({status:ns,updated_at:new Date().toISOString()}).eq('id',a.id);
+    if(error)return toast('Misslyckades: '+error.message);
+    toast(ns==='published'?'Publicerad':'Avpublicerad');await loadList();adminPage()});
+  $('#app').querySelectorAll('[data-d]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('Ta bort artikeln permanent?'))return;
+    const {error}=await sb.from('articles').delete().eq('id',b.dataset.d);
+    if(error)return toast('Misslyckades: '+error.message);
+    toast('Borttagen');await loadList();adminPage()});
+  $('#ss').onclick=async()=>{
+    const s={id:1,name:$('#sn').value.trim()||'Nyheter',tagline:$('#st').value.trim(),cats:$('#sc').value.split(',').map(x=>x.trim()).filter(Boolean)};
+    if(!s.cats.length)s.cats=['Nyheter'];
+    const {error}=await sb.from('site_settings').upsert(s);
+    if(error)return toast('Misslyckades: '+error.message);
+    settings={name:s.name,tagline:s.tagline,cats:s.cats};chrome();cats('null');toast('Sparat')};
+  bindTips();
+}
+
+async function editor(id){
+  cats('null');
+  const a=(id&&await getOne(id))||{id:null,title:'',cat:settings.cats[0],summary:'',content:'',image:'',author:'Redaktionen',date:today(),status:'draft'};
+  const opts=[...new Set([...settings.cats,a.cat])];
+  $('#app').innerHTML='<div class="panel"><h2>'+(a.id?'Redigera artikel':'Ny artikel')+'</h2>'+
+  '<label>Rubrik</label><input type="text" id="t" value="'+esc(a.title)+'" placeholder="Skriv en stark rubrik">'+
+  '<label>Ingress (kort sammanfattning)</label><textarea id="s" rows="2">'+esc(a.summary)+'</textarea>'+
+  '<div class="row"><div><label>Kategori</label><select id="c">'+opts.map(c=>'<option'+(c===a.cat?' selected':'')+'>'+esc(c)+'</option>').join('')+'</select></div><div><label>Skribent</label><input type="text" id="au" value="'+esc(a.author)+'"></div></div>'+
+  '<div class="row"><div><label>Datum</label><input type="date" id="d" value="'+esc(a.date)+'"></div><div><label>Status</label><select id="st"><option value="draft"'+(a.status!=='published'?' selected':'')+'>Utkast (syns bara för dig)</option><option value="published"'+(a.status==='published'?' selected':'')+'>Publicerad</option></select></div></div>'+
+  '<label>Bild</label><input type="text" id="im" value="'+esc(a.image)+'" placeholder="Bildlänk (https://…) – eller ladda upp nedan"><div style="margin-top:8px"><input type="file" id="f" accept="image/*"> <span class="meta" id="up"></span></div><div class="thumb" id="th" style="'+(a.image?bg(a):'display:none')+'"></div>'+
+  '<label>Artikeltext</label><div class="toolbar"><button data-c="bold"><b>B</b></button><button data-c="italic"><i>I</i></button><button data-c="underline"><u>U</u></button><button data-b="h2">H2</button><button data-b="h3">H3</button><button data-c="insertUnorderedList">• Lista</button><button data-c="insertOrderedList">1. Lista</button><button data-b="blockquote">❝</button><button id="lk">🔗 Länk</button><button id="ii">🖼 Bild</button><button data-c="removeFormat">Rensa</button></div><div id="editor" contenteditable="true">'+clean(a.content)+'</div>'+
+  '<div class="actions"><button class="btn" id="pub">Spara & publicera</button><button class="btn dark" id="sv">Spara utkast</button><a class="btn alt" href="#/admin">Avbryt</a></div></div>';
+  const ed=$('#editor'),th=$('#th');
+  $('#app').querySelectorAll('.toolbar [data-c]').forEach(b=>b.onmousedown=e=>{e.preventDefault();document.execCommand(b.dataset.c)});
+  $('#app').querySelectorAll('.toolbar [data-b]').forEach(b=>b.onmousedown=e=>{e.preventDefault();document.execCommand('formatBlock',false,b.dataset.b)});
+  $('#lk').onmousedown=e=>{e.preventDefault();const u=prompt('Länkadress (https://…)');if(u)document.execCommand('createLink',false,u)};
+  $('#ii').onmousedown=e=>{e.preventDefault();const u=prompt('Bildadress (https://…)');if(u)document.execCommand('insertImage',false,u)};
+  const showThumb=v=>{th.style.cssText=v?bg({image:v}):'display:none'};
+  $('#im').oninput=e=>showThumb(e.target.value.trim());
+  $('#f').onchange=e=>{
+    const f=e.target.files[0];if(!f)return;
+    $('#up').textContent='Laddar upp…';
+    const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{
+      const m=1600,s=Math.min(1,m/Math.max(img.width,img.height));
+      const c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      c.toBlob(async blob=>{
+        const path=Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
+        const {error}=await sb.storage.from('nyheter').upload(path,blob,{contentType:'image/jpeg',cacheControl:'31536000'});
+        if(error){$('#up').textContent='';return toast('Uppladdning misslyckades: '+error.message)}
+        const {data}=sb.storage.from('nyheter').getPublicUrl(path);
+        $('#im').value=data.publicUrl;showThumb(data.publicUrl);$('#up').textContent='✔ Uppladdad';
+      },'image/jpeg',.82)};img.src=r.result};r.readAsDataURL(f)};
+  const doSave=async status=>{
+    const title=$('#t').value.trim();if(!title)return toast('Rubrik saknas');
+    const o={title,summary:$('#s').value.trim(),cat:$('#c').value,author:$('#au').value.trim()||'Redaktionen',date:$('#d').value||today(),status,image:$('#im').value.trim(),content:clean(ed.innerHTML),updated_at:new Date().toISOString()};
+    $('#pub').disabled=$('#sv').disabled=true;
+    const q=a.id?sb.from('articles').update(o).eq('id',a.id).select('id').single():sb.from('articles').insert(o).select('id').single();
+    const {data,error}=await q;
+    $('#pub').disabled=$('#sv').disabled=false;
+    if(error)return toast('Kunde inte spara: '+error.message);
+    toast(status==='published'?'Publicerad!':'Utkast sparat');
+    location.hash=status==='published'?'#/artikel/'+data.id:'#/admin';
+  };
+  $('#pub').onclick=()=>doSave('published');$('#sv').onclick=()=>doSave('draft');
+}
+
+
+// ---------- kommentarer ----------
+async function commentsSection(a){
+  const sec=document.createElement('section');sec.className='panel cmts';
+  $('#app').appendChild(sec);
+  const born=Date.now();
+  let list=[];
+  async function load(){
+    const {data}=await sb.from('comments').select('id,name,body,created_at').eq('article_id',a.id).order('created_at',{ascending:true});
+    list=data||[];draw();
+  }
+  function draw(){
+    sec.innerHTML='<h2>💬 Kommentarer ('+list.length+')</h2>'+
+    (list.length?list.map(c=>'<div class="cmt"><div class="cmeta"><b>'+esc(c.name||'Anonym')+'</b> · '+esc(fmtDT(c.created_at))+(admin?' · <a href="#" data-cd="'+esc(c.id)+'" style="color:#b00020">ta bort</a>':'')+'</div><div class="cbody">'+esc(c.body)+'</div></div>').join(''):'<p class="meta" style="margin:0 0 10px">Inga kommentarer än – bli först!</p>')+
+    (a.status==='published'
+      ?'<div class="cform"><label>Namn (valfritt)</label><input type="text" id="cn" maxlength="50" autocomplete="off" placeholder="Anonym"><label>Din kommentar</label><textarea id="cb" rows="4" maxlength="1500" placeholder="Skriv något schysst…"></textarea>'+
+        '<div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden" aria-hidden="true"><label>Lämna tomt</label><input type="text" id="cweb" tabindex="-1" autocomplete="off"></div>'+
+        '<div class="note">Kommentarer är inte redaktionellt material. Du är själv juridiskt ansvarig för vad du skriver, och olagliga eller kränkande kommentarer tas bort.</div>'+
+        '<div class="actions"><button class="btn" id="csend">Skicka kommentar</button></div></div>'
+      :'<div class="note">Kommentarer öppnas när artikeln är publicerad.</div>');
+    sec.querySelectorAll('[data-cd]').forEach(l=>l.onclick=async e=>{
+      e.preventDefault();if(!confirm('Ta bort kommentaren permanent?'))return;
+      const {error}=await sb.from('comments').delete().eq('id',l.dataset.cd);
+      if(error)return toast('Misslyckades: '+error.message);
+      toast('Borttagen');load()});
+    const send=sec.querySelector('#csend');
+    if(send)send.onclick=async()=>{
+      if(sec.querySelector('#cweb').value){return}
+      if(Date.now()-born<3000)return toast('Vänta ett ögonblick och försök igen');
+      let last=0;try{last=+localStorage.getItem('cmt_last')||0}catch(e){}
+      if(Date.now()-last<20000)return toast('Vänta en liten stund innan du kommenterar igen');
+      const body=sec.querySelector('#cb').value.trim(),name=sec.querySelector('#cn').value.trim();
+      if(body.length<2)return toast('Skriv en kommentar först');
+      send.disabled=true;send.textContent='Skickar…';
+      const {error}=await sb.from('comments').insert({article_id:a.id,name,body});
+      if(error){toast(/För många/.test(error.message)?'För många kommentarer just nu. Försök igen om en stund.':'Det gick inte att skicka. Försök igen.');send.disabled=false;send.textContent='Skicka kommentar';return}
+      try{localStorage.setItem('cmt_last',String(Date.now()))}catch(e){}
+      toast('Tack för din kommentar!');load();
+    };
+  }
+  draw();load();
+}
+
+// ---------- tips & kontakt ----------
+const TYPES={tips:'💡 Tips',kontakt:'✉️ Kontakt',rattelse:'🛠️ Rättelse'};
+const SOCMETA={instagram:'📸 Instagram',tiktok:'🎵 TikTok',youtube:'▶️ YouTube',x:'✖️ X',facebook:'👍 Facebook'};
+const fmtDT=d=>{try{return new Date(d).toLocaleString('sv-SE',{dateStyle:'short',timeStyle:'short'})}catch(e){return d||''}};
+const okEmail=e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+function toJpegBlob(file,max){return new Promise((res,rej)=>{const r=new FileReader();r.onerror=rej;r.onload=()=>{const img=new Image();img.onerror=rej;img.onload=()=>{const s=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext('2d').drawImage(img,0,0,c.width,c.height);c.toBlob(b=>b?res(b):rej(new Error('bild')),'image/jpeg',.82)};img.src=r.result};r.readAsDataURL(file)})}
+async function loadTips(){const {data}=await sb.from('tips').select('*').order('created_at',{ascending:false});tips=data||[];newTips=tips.filter(t=>t.status==='new').length}
+
+function contact(){
+  cats('null');
+  document.title='Kontakt & tipsa – '+settings.name;
+  const soc=Object.entries(SOCIALS).filter(([k,v])=>/^https?:\/\//i.test(v||'')&&SOCMETA[k]).map(([k,v])=>'<a class="soc" href="'+esc(v)+'" target="_blank" rel="noopener">'+SOCMETA[k]+'</a>').join('');
+  const born=Date.now();
+  $('#app').innerHTML=
+  '<section class="intro small"><span class="badge">💌 Tipsa oss</span><h1>Har du ett <em>tips</em>? Hör av dig.</h1><p>Skicka in nyheter, rykten, intervjuförslag eller rättelser – gärna anonymt.</p></section>'+
+  '<div class="contact"><div>'+
+  '<div class="panel"><h2>Kontakta redaktionen</h2><p style="margin:0 0 6px"><b>E-post</b><br><a href="mailto:'+esc(CONTACT_EMAIL)+'">'+esc(CONTACT_EMAIL)+'</a></p>'+(soc?'<p style="margin:14px 0 8px"><b>Följ oss</b></p><div class="socs">'+soc+'</div>':'')+'<p style="margin:16px 0 0"><b>Ansvarig utgivare</b><br>Robin Axén</p></div>'+
+  '<div class="panel"><h2>🔒 Källskydd</h2><p style="margin-top:0">Vi tar källskydd på allvar. Du kan skicka tips helt anonymt – namn och e-post är alltid valfria. Vi försöker aldrig ta reda på vem du är och lämnar inte ut uppgifter om våra källor.</p><p>Det här sparas: det du skriver i formuläret och eventuell bild. Dessutom sparas en avidentifierad teknisk kod (ett hash-värde av din IP-adress) enbart som spamskydd – den används inte för att identifiera dig.</p><p style="margin-bottom:0">Bilder omkodas i din webbläsare innan de skickas, så att inbyggd information som plats och kameramodell tas bort.</p></div>'+(UTGIVNINGSBEVIS?utgPanel():'')+
+  '</div><div class="panel" id="tf"><h2>Skicka tips eller meddelande</h2>'+
+  '<label>Vad gäller det?</label><select id="tt"><option value="tips">💡 Tips på nyhet</option><option value="kontakt">✉️ Allmän kontakt</option><option value="rattelse">🛠️ Rättelse</option></select>'+
+  '<label>Ämne</label><input type="text" id="ts" maxlength="150" placeholder="Kort rubrik">'+
+  '<label>Meddelande *</label><textarea id="tm" rows="6" maxlength="5000" placeholder="Berätta vad du vet. Ju mer konkret, desto bättre."></textarea>'+
+  '<div class="row"><div><label>Namn (valfritt)</label><input type="text" id="tn" maxlength="100" autocomplete="off"></div><div><label>E-post (valfritt)</label><input type="email" id="te" maxlength="200" autocomplete="off"></div></div>'+
+  '<label>Länk (valfritt)</label><input type="text" id="tl" maxlength="500" placeholder="https://…">'+
+  '<label>Bild (valfritt)</label><input type="file" id="tf1" accept="image/*">'+
+  '<div style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden" aria-hidden="true"><label>Lämna tomt</label><input type="text" id="website" tabindex="-1" autocomplete="off"></div>'+
+  '<div class="note">Lämnar du ingen e-post kan vi inte svara dig. Skicka gärna anonymt om du vill.</div>'+
+  '<div class="actions"><button class="btn" id="tsend">Skicka 🚀</button></div></div></div>';
+  $('#tsend').onclick=async()=>{
+    const btn=$('#tsend');
+    if($('#website').value)return done();
+    if(Date.now()-born<3000)return toast('Vänta ett ögonblick och försök igen');
+    let last=0;try{last=+localStorage.getItem('tips_last')||0}catch(e){}
+    if(Date.now()-last<30000)return toast('Vänta en liten stund innan du skickar igen');
+    const message=$('#tm').value.trim(),email=$('#te').value.trim();let link=$('#tl').value.trim();
+    if(message.length<10)return toast('Skriv ett lite längre meddelande');
+    if(email&&!okEmail(email))return toast('E-postadressen ser ogiltig ut');
+    if(link&&!/^https?:\/\//i.test(link))link='https://'+link;
+    btn.disabled=true;btn.textContent='Skickar…';
+    try{
+      let image_path='';
+      const f=$('#tf1').files[0];
+      if(f){
+        if(!/^image\//.test(f.type))throw new Error('Bara bilder kan laddas upp');
+        const blob=await toJpegBlob(f,1600);
+        const path=Date.now()+'-'+Math.random().toString(36).slice(2,10)+'.jpg';
+        const {error:ue}=await sb.storage.from('tips').upload(path,blob,{contentType:'image/jpeg'});
+        if(ue)throw new Error('Bilden kunde inte laddas upp');
+        image_path=path;
+      }
+      const {error}=await sb.from('tips').insert({type:$('#tt').value,subject:$('#ts').value.trim(),message,name:$('#tn').value.trim(),email,link,image_path});
+      if(error)throw new Error(/För många/.test(error.message)?'För många inskick just nu. Försök igen om en stund.':'Det gick inte att skicka. Försök igen.');
+      try{localStorage.setItem('tips_last',String(Date.now()))}catch(e){}
+      done();
+    }catch(e){toast(e.message||'Något gick fel');btn.disabled=false;btn.textContent='Skicka 🚀'}
+  };
+  function done(){$('#tf').innerHTML='<div style="text-align:center;padding:30px 10px"><div style="font-size:54px">🎉</div><h2>Tack för ditt tips!</h2><p>Vi har tagit emot ditt meddelande och tittar på det så snart vi kan.</p><a class="btn" href="#/">Till startsidan</a></div>'}
+}
+
+function utgPanel(){
+  const n=esc(settings.name);
+  return '<div class="panel"><h2>📜 Utgivningsbevis</h2>'+
+  '<p style="margin-top:0">'+n+' innehar utgivningsbevis och arbetar således under yttrandefrihetsgrundlagen. Ansvarig utgivare är Robin Axén. Tillhandahållare är Robin Axén.</p>'+
+  '<p>Det innebär bland annat att du som skickar in tips har rätt till källskydd, det vill säga att ditt namn inte kommer att röjas när du skickar in tips, varken till myndigheter eller allmänheten.</p>'+
+  '<p>Det betyder också att GDPR inte är tillämpligt på det redaktionella innehållet på hemsidan. Du har alltså inte rätt att få ditt namn borttaget från publicerat material.</p>'+
+  '<p>Kommentarer räknas inte som redaktionellt material, och du är själv juridiskt ansvarig för vad du skriver.</p>'+
+  '<p style="margin-bottom:0">För ytterligare frågor kan du mejla till <a href="mailto:'+esc(CONTACT_EMAIL)+'">'+esc(CONTACT_EMAIL)+'</a>.</p></div>';
+}
+
+function tipsPanel(){
+  const rows=tips.length?tips.map(t=>'<details class="tip'+(t.status==='new'?' new':'')+'" data-id="'+t.id+'"><summary><span class="pill" style="background:#e5f6d3;color:#1d5a2c">'+esc(TYPES[t.type]||t.type)+'</span> <b>'+esc(t.subject||'(utan ämne)')+'</b> <span class="meta">· '+esc(fmtDT(t.created_at))+' · '+esc(t.name||'Anonym')+'</span>'+(t.status==='new'?' <span class="draft">NY</span>':t.status==='done'?' ✅':'')+'</summary><div class="tipbody"><p style="white-space:pre-wrap;margin-top:0">'+esc(t.message)+'</p>'+
+    (t.email?'<p class="meta">E-post: '+(okEmail(t.email)?'<a href="mailto:'+esc(t.email)+'">'+esc(t.email)+'</a>':esc(t.email))+'</p>':'')+
+    (/^https?:\/\//i.test(t.link||'')?'<p class="meta">Länk: <a href="'+esc(t.link)+'" target="_blank" rel="noopener noreferrer">'+esc(t.link)+'</a></p>':'')+
+    (t.image_path?'<p class="meta"><a data-p="'+esc(t.image_path)+'" target="_blank" rel="noopener">🖼 Visa bifogad bild</a></p>':'')+
+    '<div class="actions" style="margin-top:12px"><button class="btn sm alt" data-ts="'+(t.status==='done'?'new':'done')+'" data-id="'+t.id+'">'+(t.status==='done'?'Markera som ny':'✅ Markera som klar')+'</button> <button class="btn sm danger" data-td="1" data-id="'+t.id+'">Ta bort</button></div></div></details>').join(''):'<div class="empty" style="padding:24px 0">Inga meddelanden än.</div>';
+  return '<div class="panel"><h2>📬 Inkomna tips &amp; meddelanden'+(newTips?' <span class="draft">'+newTips+' nya</span>':'')+'</h2>'+rows+'</div>';
+}
+function bindTips(){
+  const root=$('#app');
+  root.querySelectorAll('details.tip').forEach(d=>d.addEventListener('toggle',async()=>{
+    const t=tips.find(x=>x.id===d.dataset.id);
+    if(d.open&&t&&t.status==='new'){t.status='read';d.classList.remove('new');const n=d.querySelector('.draft');if(n)n.remove();newTips=Math.max(0,newTips-1);await sb.from('tips').update({status:'read'}).eq('id',t.id);chrome()}
+  }));
+  root.querySelectorAll('[data-ts]').forEach(b=>b.onclick=async()=>{
+    const {error}=await sb.from('tips').update({status:b.dataset.ts}).eq('id',b.dataset.id);
+    if(error)return toast('Misslyckades: '+error.message);
+    await loadTips();chrome();adminPage()});
+  root.querySelectorAll('[data-td]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('Ta bort meddelandet permanent?'))return;
+    const t=tips.find(x=>x.id===b.dataset.id);
+    if(t&&t.image_path)await sb.storage.from('tips').remove([t.image_path]);
+    const {error}=await sb.from('tips').delete().eq('id',b.dataset.id);
+    if(error)return toast('Misslyckades: '+error.message);
+    toast('Borttaget');await loadTips();chrome();adminPage()});
+  const imgs=[...root.querySelectorAll('[data-p]')];
+  if(imgs.length)sb.storage.from('tips').createSignedUrls(imgs.map(a=>a.dataset.p),3600).then(({data})=>{(data||[]).forEach(d=>{const a=imgs.find(x=>x.dataset.p===d.path);if(a&&d.signedUrl)a.href=d.signedUrl})});
+}
+
+async function render(){
+  const my=++seq;
+  if(!configured){
+    $('#app').innerHTML='<div class="panel"><h2>Koppla till Supabase</h2><div class="note err">Sidan är inte kopplad än. Öppna <b>index.html</b>, fyll i <b>SUPABASE_URL</b> och <b>SUPABASE_ANON_KEY</b> högst upp i scriptet och följ README.md.</div></div>';
+    $('#logo').textContent=settings.name;return;
+  }
+  const h=location.hash.replace(/^#\/?/,'').split('/');
+  await Promise.all([loadSettings(),checkAdmin()]);
+  if(my!==seq)return;
+  chrome();window.scrollTo(0,0);
+  if(h[0]==='kontakt')return contact();
+  if(h[0]==='admin'){
+    if(!admin)return login();
+    if(h[1]==='ny')return editor(null);
+    if(h[1]==='redigera')return editor(h[2]);
+    await Promise.all([loadList(),loadTips()]);if(my!==seq)return;return adminPage();
+  }
+  if(h[0]==='artikel')return view(h[1]);
+  await loadList();if(my!==seq)return;
+  if(h[0]==='kat')return home(decodeURIComponent(h[1]||''));
+  document.title=settings.name;home('');
+}
+window.addEventListener('hashchange',render);
+render();
+})();
+</script>
+</body>
+</html>
