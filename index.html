@@ -304,16 +304,46 @@ async function view(id){
 function login(){
   cats('null');
   $('#app').innerHTML='<div class="panel" style="max-width:420px;margin:50px auto"><h2>Logga in</h2><label>E-post</label><input type="email" id="em" autocomplete="username"><label>Lösenord</label><input type="password" id="pw" autocomplete="current-password"><div class="actions"><button class="btn" id="go">Logga in</button></div><div class="note">Endast redaktörer har tillgång. Besökare behöver inte logga in.</div></div>';
+
   const go=async()=>{
-    const b=$('#go');b.disabled=true;
-    const {error}=await sb.auth.signInWithPassword({email:$('#em').value.trim(),password:$('#pw').value});
+
+    const b=$('#go');
+    b.disabled=true;
+
+    const {error}=await sb.auth.signInWithPassword({
+      email:$('#em').value.trim(),
+      password:$('#pw').value
+    });
+
+    console.log("LOGIN ERROR:", error);
+
+    const {data:{session}} = await sb.auth.getSession();
+
+    console.log("SESSION AFTER LOGIN:", session);
+
     b.disabled=false;
-    if(error)return toast('Fel e-post eller lösenord');
+
+    if(error) return toast('Fel e-post eller lösenord');
+
     await checkAdmin();
-    if(!admin){toast('Kontot saknar redaktörsbehörighet (se README)');await sb.auth.signOut();return}
-    location.hash='#/admin';render();
+
+    if(!admin){
+      toast('Kontot saknar redaktörsbehörighet (se README)');
+      await sb.auth.signOut();
+      return;
+    }
+
+    location.hash='#/admin';
+    render();
   };
-  $('#go').onclick=go;$('#app').querySelectorAll('input').forEach(i=>i.onkeydown=e=>{if(e.key==='Enter')go()});
+
+  $('#go').onclick=go;
+
+  $('#app').querySelectorAll('input').forEach(i=>
+    i.onkeydown=e=>{
+      if(e.key==='Enter') go();
+    }
+  );
 }
 
 function adminPage(){
