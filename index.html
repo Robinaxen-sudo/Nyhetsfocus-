@@ -310,12 +310,15 @@ function login(){
     const b=$('#go');
     b.disabled=true;
 
-    const {error}=await sb.auth.signInWithPassword({
-      email:$('#em').value.trim(),
-      password:$('#pw').value
-    });
+    const result = await sb.auth.signInWithPassword({
+  email:$('#em').value.trim(),
+  password:$('#pw').value
+});
 
-    console.log("LOGIN ERROR:", error);
+console.log("LOGIN RESULT:", result);
+    
+const {data:{session}} = await sb.auth.getSession();
+console.log("SESSION AFTER LOGIN:", session);
 
     const {data:{session}} = await sb.auth.getSession();
 
