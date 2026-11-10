@@ -345,16 +345,6 @@ async function view(id){
       '<h1>'+esc(a.title)+'</h1>'+
       '<p class="lead">'+esc(a.summary)+'</p>'+
       '<div class="meta" style="margin-bottom:22px">'+fmt(a.date)+' · av '+esc(a.author)+'</div>'+
-(renderGallery(a.gallery || []))+
-
-(a.video_url
- ? `<div style="margin:25px 0">
-      <video controls style="width:100%;border-radius:16px">
-        <source src="${a.video_url}" type="video/mp4">
-      </video>
-    </div>`
- : '')+
-
 '<div class="content">'+
 clean(a.content)+
 '</div>'+
