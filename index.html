@@ -654,7 +654,7 @@ function bindTips(){
   const imgs=[...root.querySelectorAll('[data-p]')];
   if(imgs.length)sb.storage.from('tips').createSignedUrls(imgs.map(a=>a.dataset.p),3600).then(({data})=>{(data||[]).forEach(d=>{const a=imgs.find(x=>x.dataset.p===d.path);if(a&&d.signedUrl)a.href=d.signedUrl})});
 }
-
+async function render(){
   const my=++seq;
   if(!configured){
     $('#app').innerHTML='<div class="panel"><h2>Koppla till Supabase</h2><div class="note err">Sidan är inte kopplad än. Öppna <b>index.html</b>, fyll i <b>SUPABASE_URL</b> och <b>SUPABASE_ANON_KEY</b> högst upp i scriptet och följ README.md.</div></div>';
