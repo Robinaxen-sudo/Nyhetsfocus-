@@ -451,7 +451,7 @@ async function editor(id){
   '<div class="row"><div><label>Datum</label><input type="date" id="d" value="'+esc(a.date)+'"></div><div><label>Status</label><select id="st"><option value="draft"'+(a.status!=='published'?' selected':'')+'>Utkast (syns bara för dig)</option><option value="published"'+(a.status==='published'?' selected':'')+'>Publicerad</option></select></div></div>'+
   '<label>Bild</label><input type="text" id="im" value="'+esc(a.image)+'" placeholder="Bildlänk (https://…) – eller ladda upp nedan"><div style="margin-top:8px"><input type="file" id="f" accept="image/*"> <span class="meta" id="up"></span></div><div class="thumb" id="th" style="'+(a.image?bg(a):'display:none')+'"></div>'+
       '<label>Bildgalleri</label>'+
-' accept="image/*" multiple>'+
+'<input type="file" id="galleryFiles" accept="image/*" multiple>'+
       '<label>Fotograf / Bildkälla</label>'+
 '<input type="text" id="pc" value="'+esc(a.photo_credit || '')+'" placeholder="Fotograf / Bildkälla">'+
 '<label>Bildgalleri (en bildlänk per rad)</label>'+
