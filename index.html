@@ -284,7 +284,16 @@ async function view(id){
   const a=await getOne(id);
   if(!a){$('#app').innerHTML='<div class="empty">Artikeln finns inte.<br><br><a class="btn" href="#/">Till startsidan</a></div>';return}
   document.title=a.title+' – '+settings.name;
-  $('#app').innerHTML='<article class="full">'+(a.image?'<div class="cover" style="'+bg(a)+'"></div>':'')+'<div class="in"><span class="pill" style="'+catStyle(a.cat)+'">'+emo(a.cat)+' '+esc(a.cat)+draftTag(a)+'</span><h1>'+esc(a.title)+'</h1><p class="lead">'+esc(a.summary)+'</p><div class="meta" style="margin-bottom:22px">'+fmt(a.date)+' · av '+esc(a.author)+'</div><div class="content">'+clean(a.content)+'</div><div class="actions"><a class="btn alt" href="#/">← Alla nyheter</a>'+(admin?'<a class="btn" href="#/admin/redigera/'+a.id+'">Redigera</a>':'')+'<button class="btn alt" id="sh">Kopiera länk</button></div></div></article>';
+  $('#app').innerHTML='<article class="full">'+(a.image
+ ? '<div class="cover" style="'+bg(a)+'"></div>' +
+   (a.photo_credit
+     ? '<div style="padding:8px 15px;font-size:12px;color:#666;background:#f7f7f7;">Foto: '+esc(a.photo_credit)+'</div>'
+     : '')
+ : '')'+
+(a.photo_credit ?
+'<div style="padding:8px 15px;font-size:12px;color:#666;background:#f7f7f7;">Foto: '+esc(a.photo_credit)+'</div>'
+:'')
+:'')</div>':'')+'<div class="in"><span class="pill" style="'+catStyle(a.cat)+'">'+emo(a.cat)+' '+esc(a.cat)+draftTag(a)+'</span><h1>'+esc(a.title)+'</h1><p class="lead">'+esc(a.summary)+'</p><div class="meta" style="margin-bottom:22px">'+fmt(a.date)+' · av '+esc(a.author)+'</div><div class="content">'+clean(a.content)+'</div><div class="actions"><a class="btn alt" href="#/">← Alla nyheter</a>'+(admin?'<a class="btn" href="#/admin/redigera/'+a.id+'">Redigera</a>':'')+'<button class="btn alt" id="sh">Kopiera länk</button></div></div></article>';
   $('#sh').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(location.href);toast('Länk kopierad')};
   commentsSection(a);
 }
@@ -340,6 +349,10 @@ async function editor(id){
   '<div class="row"><div><label>Kategori</label><select id="c">'+opts.map(c=>'<option'+(c===a.cat?' selected':'')+'>'+esc(c)+'</option>').join('')+'</select></div><div><label>Skribent</label><input type="text" id="au" value="'+esc(a.author)+'"></div></div>'+
   '<div class="row"><div><label>Datum</label><input type="date" id="d" value="'+esc(a.date)+'"></div><div><label>Status</label><select id="st"><option value="draft"'+(a.status!=='published'?' selected':'')+'>Utkast (syns bara för dig)</option><option value="published"'+(a.status==='published'?' selected':'')+'>Publicerad</option></select></div></div>'+
   '<label>Bild</label><input type="text" id="im" value="'+esc(a.image)+'" placeholder="Bildlänk (https://…) – eller ladda upp nedan"><div style="margin-top:8px"><input type="file" id="f" accept="image/*"> <span class="meta" id="up"></span></div><div class="thumb" id="th" style="'+(a.image?bg(a):'display:none')+'"></div>'+
+      '<label>Fotokreditering</label>'+
+'<input type="text" id="pc" value="'+esc(a.photo_credit || '')+'" placeholder=" Stefan andersson">'+
+
+'<label>Artikeltext</label>'+
   '<label>Artikeltext</label><div class="toolbar"><button data-c="bold"><b>B</b></button><button data-c="italic"><i>I</i></button><button data-c="underline"><u>U</u></button><button data-b="h2">H2</button><button data-b="h3">H3</button><button data-c="insertUnorderedList">• Lista</button><button data-c="insertOrderedList">1. Lista</button><button data-b="blockquote">❝</button><button id="lk">🔗 Länk</button><button id="ii">🖼 Bild</button><button data-c="removeFormat">Rensa</button></div><div id="editor" contenteditable="true">'+clean(a.content)+'</div>'+
   '<div class="actions"><button class="btn" id="pub">Spara & publicera</button><button class="btn dark" id="sv">Spara utkast</button><a class="btn alt" href="#/admin">Avbryt</a></div></div>';
   const ed=$('#editor'),th=$('#th');
@@ -364,7 +377,18 @@ async function editor(id){
       },'image/jpeg',.82)};img.src=r.result};r.readAsDataURL(f)};
   const doSave=async status=>{
     const title=$('#t').value.trim();if(!title)return toast('Rubrik saknas');
-    const o={title,summary:$('#s').value.trim(),cat:$('#c').value,author:$('#au').value.trim()||'Redaktionen',date:$('#d').value||today(),status,image:$('#im').value.trim(),content:clean(ed.innerHTML),updated_at:new Date().toISOString()};
+const o={
+  title,
+  summary: $('#s').value.trim(),
+  cat: $('#c').value,
+  author: $('#au').value.trim() || 'Redaktionen',
+  date: $('#d').value || today(),
+  status,
+  image: $('#im').value.trim(),
+  photo_credit: $('#pc').value.trim(),
+  content: clean(ed.innerHTML),
+  updated_at: new Date().toISOString()
+};
     $('#pub').disabled=$('#sv').disabled=true;
     const q=a.id?sb.from('articles').update(o).eq('id',a.id).select('id').single():sb.from('articles').insert(o).select('id').single();
     const {data,error}=await q;
