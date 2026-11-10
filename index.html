@@ -345,7 +345,21 @@ async function view(id){
       '<h1>'+esc(a.title)+'</h1>'+
       '<p class="lead">'+esc(a.summary)+'</p>'+
       '<div class="meta" style="margin-bottom:22px">'+fmt(a.date)+' · av '+esc(a.author)+'</div>'+
-      '<div class="content">'+clean(a.content)+'</div>'+
+(renderGallery(a.gallery || []))+
+
+(a.video_url
+ ? `<div style="margin:25px 0">
+      <video controls style="width:100%;border-radius:16px">
+        <source src="${a.video_url}" type="video/mp4">
+      </video>
+    </div>`
+ : '')+
+
+'<div class="content">'+
+clean(a.content)+
+'</div>'+
+
+'</div>'+
       '<div class="actions">'+
         '<a class="btn alt" href="#/">← Alla nyheter</a>'+
         (admin?'<a class="btn" href="#/admin/redigera/'+a.id+'">Redigera</a>':'')+
@@ -358,7 +372,31 @@ async function view(id){
     navigator.clipboard && navigator.clipboard.writeText(location.href);
     toast('Länk kopierad');
   };
+document.querySelectorAll('.gallery').forEach(g=>{
 
+  const track=g.querySelector('.gallery-track');
+  const slides=g.querySelectorAll('img');
+
+  let current=0;
+
+  function update(){
+    slides.forEach((img,i)=>{
+      img.style.display=i===current?'block':'none';
+    });
+  }
+
+  g.querySelector('.gallery-prev').onclick=()=>{
+    current=(current-1+slides.length)%slides.length;
+    update();
+  };
+
+  g.querySelector('.gallery-next').onclick=()=>{
+    current=(current+1)%slides.length;
+    update();
+  };
+
+  update();
+});
   commentsSection(a);
 }
 function login(){
@@ -412,9 +450,15 @@ async function editor(id){
   '<div class="row"><div><label>Kategori</label><select id="c">'+opts.map(c=>'<option'+(c===a.cat?' selected':'')+'>'+esc(c)+'</option>').join('')+'</select></div><div><label>Skribent</label><input type="text" id="au" value="'+esc(a.author)+'"></div></div>'+
   '<div class="row"><div><label>Datum</label><input type="date" id="d" value="'+esc(a.date)+'"></div><div><label>Status</label><select id="st"><option value="draft"'+(a.status!=='published'?' selected':'')+'>Utkast (syns bara för dig)</option><option value="published"'+(a.status==='published'?' selected':'')+'>Publicerad</option></select></div></div>'+
   '<label>Bild</label><input type="text" id="im" value="'+esc(a.image)+'" placeholder="Bildlänk (https://…) – eller ladda upp nedan"><div style="margin-top:8px"><input type="file" id="f" accept="image/*"> <span class="meta" id="up"></span></div><div class="thumb" id="th" style="'+(a.image?bg(a):'display:none')+'"></div>'+
-      '<label>Fotokreditering</label>'+
-'<input type="text" id="pc" value="'+esc(a.photo_credit || '')+'" placeholder=" Stefan andersson">'+
+      '<label>Fotograf / Bildkälla</label>'+
+'<input type="text" id="pc" value="'+esc(a.photo_credit || '')+'" placeholder="Fotograf / Bildkälla">'+
+'<label>Bildgalleri (en bildlänk per rad)</label>'+
+'<textarea id="gal" rows="5" placeholder="https://bild1.jpg&#10;https://bild2.jpg&#10;https://bild3.jpg">'+
+esc((a.gallery||[]).join('\n'))+
+'</textarea>'+
 
+'<label>Video (Youtube eller MP4)</label>'+
+'<input type="text" id="vu" value="'+esc(a.video_url || '')+'" placeholder="https://...">'+
   '<label>Artikeltext</label><div class="toolbar"><button data-c="bold"><b>B</b></button><button data-c="italic"><i>I</i></button><button data-c="underline"><u>U</u></button><button data-b="h2">H2</button><button data-b="h3">H3</button><button data-c="insertUnorderedList">• Lista</button><button data-c="insertOrderedList">1. Lista</button><button data-b="blockquote">❝</button><button id="lk">🔗 Länk</button><button id="ii">🖼 Bild</button><button data-c="removeFormat">Rensa</button></div><div id="editor" contenteditable="true">'+clean(a.content)+'</div>'+
   '<div class="actions"><button class="btn" id="pub">Spara & publicera</button><button class="btn dark" id="sv">Spara utkast</button><a class="btn alt" href="#/admin">Avbryt</a></div></div>';
   const ed=$('#editor'),th=$('#th');
@@ -446,9 +490,17 @@ const o={
   author: $('#au').value.trim() || 'Redaktionen',
   date: $('#d').value || today(),
   status,
-  image: $('#im').value.trim(),
-  photo_credit: $('#pc').value.trim(),
-  content: clean(ed.innerHTML),
+image: $('#im').value.trim(),
+photo_credit: $('#pc').value.trim(),
+
+gallery: $('#gal').value
+  .split('\n')
+  .map(x=>x.trim())
+  .filter(Boolean),
+
+video_url: $('#vu').value.trim(),
+
+content: clean(ed.innerHTML),
   updated_at: new Date().toISOString()
 };
     $('#pub').disabled=$('#sv').disabled=true;
@@ -603,7 +655,24 @@ function bindTips(){
   if(imgs.length)sb.storage.from('tips').createSignedUrls(imgs.map(a=>a.dataset.p),3600).then(({data})=>{(data||[]).forEach(d=>{const a=imgs.find(x=>x.dataset.p===d.path);if(a&&d.signedUrl)a.href=d.signedUrl})});
 }
 
-async function render(){
+function renderGallery(images){
+
+  if(!images || !images.length) return '';
+
+  return `
+    <div class="gallery">
+      <button class="gallery-btn gallery-prev">❮</button>
+
+      <div class="gallery-track">
+        ${images.map(img=>`
+          <img src="${img}">
+        `).join('')}
+      </div>
+
+      <button class="gallery-btn gallery-next">❯</button>
+    </div>
+  `;
+}
   const my=++seq;
   if(!configured){
     $('#app').innerHTML='<div class="panel"><h2>Koppla till Supabase</h2><div class="note err">Sidan är inte kopplad än. Öppna <b>index.html</b>, fyll i <b>SUPABASE_URL</b> och <b>SUPABASE_ANON_KEY</b> högst upp i scriptet och följ README.md.</div></div>';
