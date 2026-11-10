@@ -282,22 +282,46 @@ function home(cat,q){
 async function view(id){
   cats('');
   const a=await getOne(id);
-  if(!a){$('#app').innerHTML='<div class="empty">Artikeln finns inte.<br><br><a class="btn" href="#/">Till startsidan</a></div>';return}
+
+  if(!a){
+    $('#app').innerHTML='<div class="empty">Artikeln finns inte.<br><br><a class="btn" href="#/">Till startsidan</a></div>';
+    return;
+  }
+
   document.title=a.title+' – '+settings.name;
-  $('#app').innerHTML='<article class="full">'+(a.image
- ? '<div class="cover" style="'+bg(a)+'"></div>' +
-   (a.photo_credit
-     ? '<div style="padding:8px 15px;font-size:12px;color:#666;background:#f7f7f7;">Foto: '+esc(a.photo_credit)+'</div>'
-     : '')
- : '')'+
-(a.photo_credit ?
-'<div style="padding:8px 15px;font-size:12px;color:#666;background:#f7f7f7;">Foto: '+esc(a.photo_credit)+'</div>'
-:'')
-:'')</div>':'')+'<div class="in"><span class="pill" style="'+catStyle(a.cat)+'">'+emo(a.cat)+' '+esc(a.cat)+draftTag(a)+'</span><h1>'+esc(a.title)+'</h1><p class="lead">'+esc(a.summary)+'</p><div class="meta" style="margin-bottom:22px">'+fmt(a.date)+' · av '+esc(a.author)+'</div><div class="content">'+clean(a.content)+'</div><div class="actions"><a class="btn alt" href="#/">← Alla nyheter</a>'+(admin?'<a class="btn" href="#/admin/redigera/'+a.id+'">Redigera</a>':'')+'<button class="btn alt" id="sh">Kopiera länk</button></div></div></article>';
-  $('#sh').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(location.href);toast('Länk kopierad')};
+
+  $('#app').innerHTML=
+    '<article class="full">'+
+
+    (a.image
+      ? '<div class="cover" style="'+bg(a)+'"></div>' +
+        (a.photo_credit
+          ? '<div style="padding:8px 15px;font-size:12px;color:#666;background:#f7f7f7;">Foto: '+esc(a.photo_credit)+'</div>'
+          : '')
+      : ''
+    ) +
+
+    '<div class="in">'+
+      '<span class="pill" style="'+catStyle(a.cat)+'">'+emo(a.cat)+' '+esc(a.cat)+draftTag(a)+'</span>'+
+      '<h1>'+esc(a.title)+'</h1>'+
+      '<p class="lead">'+esc(a.summary)+'</p>'+
+      '<div class="meta" style="margin-bottom:22px">'+fmt(a.date)+' · av '+esc(a.author)+'</div>'+
+      '<div class="content">'+clean(a.content)+'</div>'+
+      '<div class="actions">'+
+        '<a class="btn alt" href="#/">← Alla nyheter</a>'+
+        (admin?'<a class="btn" href="#/admin/redigera/'+a.id+'">Redigera</a>':'')+
+        '<button class="btn alt" id="sh">Kopiera länk</button>'+
+      '</div>'+
+    '</div>'+
+    '</article>';
+
+  $('#sh').onclick=()=>{
+    navigator.clipboard && navigator.clipboard.writeText(location.href);
+    toast('Länk kopierad');
+  };
+
   commentsSection(a);
 }
-
 function login(){
   cats('null');
   $('#app').innerHTML='<div class="panel" style="max-width:420px;margin:50px auto"><h2>Logga in</h2><label>E-post</label><input type="email" id="em" autocomplete="username"><label>Lösenord</label><input type="password" id="pw" autocomplete="current-password"><div class="actions"><button class="btn" id="go">Logga in</button></div><div class="note">Endast redaktörer har tillgång. Besökare behöver inte logga in.</div></div>';
