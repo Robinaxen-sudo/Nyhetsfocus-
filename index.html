@@ -230,7 +230,7 @@ const EMO={'Nyheter':'📰','Intervjuer':'🎤','Skvaller & drama':'🔥','Influ
 const emo=c=>EMO[c]||'✨';
 const PAL=[['#e5f6d3','#1d5a2c'],['#ffe1ea','#a3173f'],['#e8e3ff','#4b2fb0'],['#ffedd5','#b45309'],['#dbeafe','#1d4ed8'],['#fef9c3','#854d0e']];
 const catStyle=c=>{let i=settings.cats.indexOf(c);if(i<0)i=0;const p=PAL[i%PAL.length];return 'background:'+p[0]+';color:'+p[1]};
-const LIST_COLS='id,title,summary,cat,author,image,gallery,date,status';
+const LIST_COLS='id,title,summary,cat,author,image,gallery,video_url,date,status';
 
 // ---------- data ----------
 async function loadSettings(){
