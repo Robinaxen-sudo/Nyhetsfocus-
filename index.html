@@ -261,7 +261,15 @@ async function uploadImage(file,bucket,max){
   if(error)throw error;
   return sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;
 }
-function videoHtml(u){
+async function uploadVideo(file,bucket){
+  const ext=((file.name||'').match(/\.(mp4|webm|mov)$/i)||[,'mp4'])[1].toLowerCase();
+  const path=Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
+  const {error}=await sb.storage.from(bucket).upload(path,file,{contentType:file.type||('video/'+(ext==='mov'?'quicktime':ext)),cacheControl:'31536000'});
+  if(error)throw error;
+  return sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+}
+function videoHtml(u){return String(u||'').split('\n').map(x=>videoOne(x.trim())).join('')}
+function videoOne(u){
   if(!/^https?:/i.test(u||''))return '';
   const m=u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([\w-]{11})/);
   if(m)return '<div class="video"><iframe src="https://www.youtube.com/embed/'+m[1]+'" allowfullscreen loading="lazy" title="Video"></iframe></div>';
@@ -408,94 +416,95 @@ async function editor(id){
   cats('null');
   const a=(id&&await getOne(id))||{id:null,title:'',cat:settings.cats[0],summary:'',content:'',image:'',author:'Redaktionen',date:today(),status:'draft',gallery:[],video_url:'',photo_credit:''};
   const opts=[...new Set([...settings.cats,a.cat])];
+  const isVf=u=>/\.(mp4|webm|mov)(\?|$)/i.test(u);
+  const vlines=String(a.video_url||'').split('\n').map(x=>x.trim()).filter(Boolean);
+  const ytLink=vlines.find(u=>!isVf(u))||'';
+  const media=[...new Set([a.image,...(a.gallery||[])].filter(Boolean))].map(u=>({t:'i',u}));
+  vlines.filter(isVf).forEach(u=>media.push({t:'v',u}));
   $('#app').innerHTML='<div class="panel"><h2>'+(a.id?'Redigera artikel':'Ny artikel')+'</h2>'+
   '<label>Rubrik</label><input type="text" id="t" value="'+esc(a.title)+'" placeholder="Skriv en stark rubrik">'+
   '<label>Ingress (kort sammanfattning)</label><textarea id="s" rows="2">'+esc(a.summary)+'</textarea>'+
   '<div class="row"><div><label>Kategori</label><select id="c">'+opts.map(c=>'<option'+(c===a.cat?' selected':'')+'>'+esc(c)+'</option>').join('')+'</select></div><div><label>Skribent</label><input type="text" id="au" value="'+esc(a.author)+'"></div></div>'+
   '<div class="row"><div><label>Datum</label><input type="date" id="d" value="'+esc(a.date)+'"></div><div><label>Status</label><select id="st"><option value="draft"'+(a.status!=='published'?' selected':'')+'>Utkast (syns bara för dig)</option><option value="published"'+(a.status==='published'?' selected':'')+'>Publicerad</option></select></div></div>'+
-  '<label>Bild</label><input type="text" id="im" value="'+esc(a.image)+'" placeholder="Bildlänk (https://…) – eller ladda upp nedan"><div style="margin-top:8px"><input type="file" id="f" accept="image/*"> <span class="meta" id="up"></span></div><div class="thumb" id="th" style="'+(a.image?bg(a):'display:none')+'"></div>'+
-'<label>Fotograf / Bildkälla</label>'+
-'<input type="text" id="pc" value="'+esc(a.photo_credit || '')+'" placeholder="Fotograf / Bildkälla">'+
-'<label>Bildgalleri – ladda upp flera bilder på en gång</label>'+
-'<input type="file" id="galleryFiles" accept="image/*" multiple> <span class="meta" id="gup"></span>'+
-'<div class="gthumbs" id="gth"></div>'+
-'<label>Bildgalleri (en bildlänk per rad – fylls i automatiskt vid uppladdning)</label>'+
-'<textarea id="gal" rows="4" placeholder="https://bild1.jpg&#10;https://bild2.jpg">'+
-esc((a.gallery||[]).join('\n'))+
-'</textarea>'+
-'<label>Video (Youtube eller MP4)</label>'+
-'<input type="text" id="vu" value="'+esc(a.video_url || '')+'" placeholder="https://...">'+
+  '<label>Bilder och video</label>'+
+  '<input type="file" id="mf" accept="image/*,video/mp4,video/quicktime,video/webm" multiple> <span class="meta" id="mup"></span>'+
+  '<div class="meta" style="margin-top:6px">Välj en eller flera bilder och korta videoklipp. Första bilden blir omslag – tryck på en bild för att göra den till omslag.</div>'+
+  '<div class="gthumbs" id="mth"></div>'+
+  '<label>Fotograf / Bildkälla</label>'+
+  '<input type="text" id="pc" value="'+esc(a.photo_credit || '')+'" placeholder="Fotograf / Bildkälla">'+
+  '<label>YouTube-länk (för längre videor)</label>'+
+  '<input type="text" id="vu" value="'+esc(ytLink)+'" placeholder="https://...">'+
   '<label>Artikeltext</label><div class="toolbar"><button data-c="bold"><b>B</b></button><button data-c="italic"><i>I</i></button><button data-c="underline"><u>U</u></button><button data-b="h2">H2</button><button data-b="h3">H3</button><button data-c="insertUnorderedList">• Lista</button><button data-c="insertOrderedList">1. Lista</button><button data-b="blockquote">❝</button><button id="lk">🔗 Länk</button><button id="ii">🖼 Bild</button><button data-c="removeFormat">Rensa</button></div><div id="editor" contenteditable="true">'+clean(a.content)+'</div>'+
-  '<div style="margin-top:8px"><label style="margin-top:6px">Lägg in bilder i texten (flera går bra)</label><input type="file" id="inl" accept="image/*" multiple> <span class="meta" id="inlu"></span></div>'+
+  '<input type="file" id="inl" accept="image/*" multiple hidden> <span class="meta" id="inlu"></span>'+
   '<div class="actions"><button class="btn" id="pub">Spara & publicera</button><button class="btn dark" id="sv">Spara utkast</button><a class="btn alt" href="#/admin">Avbryt</a></div></div>';
-  const ed=$('#editor'),th=$('#th');
+  const ed=$('#editor');
   $('#app').querySelectorAll('.toolbar [data-c]').forEach(b=>b.onmousedown=e=>{e.preventDefault();document.execCommand(b.dataset.c)});
   $('#app').querySelectorAll('.toolbar [data-b]').forEach(b=>b.onmousedown=e=>{e.preventDefault();document.execCommand('formatBlock',false,b.dataset.b)});
   $('#lk').onmousedown=e=>{e.preventDefault();const u=prompt('Länkadress (https://…)');if(u)document.execCommand('createLink',false,u)};
-  $('#ii').onmousedown=e=>{e.preventDefault();const u=prompt('Bildadress (https://…)');if(u)document.execCommand('insertImage',false,u)};
-  const showThumb=v=>{th.style.cssText=v?bg({image:v}):'display:none'};
-  $('#im').oninput=e=>showThumb(e.target.value.trim());
   let busy=0;
-  $('#f').onchange=async e=>{
-    const f=e.target.files[0];if(!f)return;
-    busy++;$('#up').textContent='Laddar upp…';
-    try{const url=await uploadImage(f,'nyheter',1600);$('#im').value=url;showThumb(url);$('#up').textContent='✔ Uppladdad'}
-    catch(err){$('#up').textContent='';toast('Uppladdning misslyckades: '+(err.message||err))}
-    busy--;
-  };
-  const gal=$('#gal');
-  const galUrls=()=>gal.value.split('\n').map(x=>x.trim()).filter(Boolean);
-  const drawThumbs=()=>{
-    const u=galUrls();
-    $('#gth').innerHTML=u.map((x,i)=>'<div class="gt" style="'+bg({image:x})+'"><button type="button" data-rm="'+i+'" title="Ta bort">×</button></div>').join('');
-    $('#gth').querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{const l=galUrls();l.splice(+b.dataset.rm,1);gal.value=l.join('\n');drawThumbs()});
-  };
-  gal.oninput=drawThumbs;drawThumbs();
-  $('#galleryFiles').onchange=async e=>{
-    const files=[...e.target.files];if(!files.length)return;
-    busy++;let ok=0,fail=0,lastErr='';
-    for(let i=0;i<files.length;i++){
-      $('#gup').textContent='Laddar upp '+(i+1)+' av '+files.length+'…';
-      try{const url=await uploadImage(files[i],'nyheter',1600);gal.value=(gal.value.trim()?gal.value.trim()+'\n':'')+url;drawThumbs();ok++}
-      catch(err){fail++;lastErr=err.message||String(err)}
-    }
-    e.target.value='';busy--;
-    $('#gup').textContent=ok?('✔ '+ok+' uppladdade'+(fail?', '+fail+' misslyckades':'')):'';
-    if(fail)toast('Uppladdning misslyckades: '+lastErr);
-  };
+  let savedRange=null;
+  const saveSel=()=>{const s=window.getSelection();if(s.rangeCount&&ed.contains(s.anchorNode))savedRange=s.getRangeAt(0).cloneRange()};
+  ['keyup','mouseup','touchend','input','blur'].forEach(ev=>ed.addEventListener(ev,saveSel));
+  // 🖼 Bild i toolbaren: välj bild(er) från telefonen och lägg in dem där markören står
+  $('#ii').onclick=()=>{saveSel();$('#inl').click()};
   $('#inl').onchange=async e=>{
     const files=[...e.target.files];if(!files.length)return;
     busy++;let ok=0;
     for(let i=0;i<files.length;i++){
       $('#inlu').textContent='Laddar upp '+(i+1)+' av '+files.length+'…';
-      try{const url=await uploadImage(files[i],'nyheter',1600);const im=document.createElement('img');im.src=url;im.alt='';ed.appendChild(im);ok++}
-      catch(err){toast('Uppladdning misslyckades: '+(err.message||err))}
+      try{
+        const url=await uploadImage(files[i],'nyheter',1600);
+        const im=document.createElement('img');im.src=url;im.alt='';
+        if(savedRange){savedRange.insertNode(im);savedRange.setStartAfter(im);savedRange.collapse(true)}
+        else ed.appendChild(im);
+        ok++;
+      }catch(err){toast('Uppladdning misslyckades: '+(err.message||err))}
     }
-    e.target.value='';busy--;$('#inlu').textContent=ok?'✔ '+ok+' tillagda längst ner i texten':'';
+    e.target.value='';busy--;$('#inlu').textContent=ok?'✔ '+ok+' bild(er) inlagda i texten':'';
+  };
+  // En enda uppladdning för omslag, galleri och video
+  const drawMedia=()=>{
+    const firstImg=media.find(m=>m.t==='i');
+    $('#mth').innerHTML=media.map((m,i)=>'<div class="gt" data-mi="'+i+'" style="cursor:pointer;'+(m.t==='i'?bg({image:m.u}):'background:#10261a;color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center')+'">'+(m.t==='v'?'▶':'')+(m===firstImg?'<span style="position:absolute;left:4px;bottom:4px;background:#b8f26b;color:#0b2e1b;font-size:10px;font-weight:800;padding:2px 6px;border-radius:999px">OMSLAG</span>':'')+'<button type="button" data-rm="'+i+'" title="Ta bort">×</button></div>').join('');
+    $('#mth').querySelectorAll('[data-rm]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();media.splice(+b.dataset.rm,1);drawMedia()});
+    $('#mth').querySelectorAll('[data-mi]').forEach(d=>d.onclick=()=>{const i=+d.dataset.mi;if(media[i].t!=='i')return;const [m]=media.splice(i,1);const k=media.findIndex(x=>x.t==='i');media.splice(k<0?0:k,0,m);drawMedia()});
+  };
+  drawMedia();
+  $('#mf').onchange=async e=>{
+    const files=[...e.target.files];if(!files.length)return;
+    busy++;let ok=0,fail=0,lastErr='';
+    for(let i=0;i<files.length;i++){
+      const f=files[i];
+      $('#mup').textContent='Laddar upp '+(i+1)+' av '+files.length+'…';
+      try{
+        const isV=/^video\//.test(f.type)||/\.(mp4|mov|webm)$/i.test(f.name||'');
+        const url=isV?await uploadVideo(f,'nyheter'):await uploadImage(f,'nyheter',1600);
+        media.push({t:isV?'v':'i',u:url});drawMedia();ok++;
+      }catch(err){fail++;lastErr=err.message||String(err)}
+    }
+    e.target.value='';busy--;
+    $('#mup').textContent=ok?('✔ '+ok+' uppladdade'+(fail?', '+fail+' misslyckades':'')):'';
+    if(fail)toast('Uppladdning misslyckades: '+lastErr);
   };
   const doSave=async status=>{
-    if(busy)return toast('Vänta tills bilderna har laddats upp klart');
+    if(busy)return toast('Vänta tills filerna har laddats upp klart');
     const title=$('#t').value.trim();if(!title)return toast('Rubrik saknas');
-const o={
-  title,
-  summary: $('#s').value.trim(),
-  cat: $('#c').value,
-  author: $('#au').value.trim() || 'Redaktionen',
-  date: $('#d').value || today(),
-  status,
-image: $('#im').value.trim(),
-photo_credit: $('#pc').value.trim(),
-
-gallery: $('#gal').value
-  .split('\n')
-  .map(x=>x.trim())
-  .filter(Boolean),
-
-video_url: $('#vu').value.trim(),
-
-content: clean(ed.innerHTML),
-  updated_at: new Date().toISOString()
-};
+    const imgs=media.filter(m=>m.t==='i').map(m=>m.u);
+    const vids=[$('#vu').value.trim(),...media.filter(m=>m.t==='v').map(m=>m.u)].filter(Boolean).join('\n');
+    const o={
+      title,
+      summary: $('#s').value.trim(),
+      cat: $('#c').value,
+      author: $('#au').value.trim() || 'Redaktionen',
+      date: $('#d').value || today(),
+      status,
+      image: imgs[0]||'',
+      gallery: imgs.slice(1),
+      photo_credit: $('#pc').value.trim(),
+      video_url: vids,
+      content: clean(ed.innerHTML),
+      updated_at: new Date().toISOString()
+    };
     $('#pub').disabled=$('#sv').disabled=true;
     const q=a.id?sb.from('articles').update(o).eq('id',a.id).select('id').single():sb.from('articles').insert(o).select('id').single();
     const {data,error}=await q;
