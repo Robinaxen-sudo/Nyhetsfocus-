@@ -268,6 +268,18 @@ async function uploadVideo(file,bucket){
   if(error)throw error;
   return sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;
 }
+function storagePath(u){const m=String(u||'').match(/\/storage\/v1\/object\/public\/nyheter\/([^?#]+)/);return m?decodeURIComponent(m[1]):null}
+function mediaUrls(a){
+  const out=[a.image,...(Array.isArray(a.gallery)?a.gallery:[]),...String(a.video_url||'').split('\n')];
+  const d=new DOMParser().parseFromString('<div>'+(a.content||'')+'</div>','text/html');
+  d.querySelectorAll('img').forEach(i=>out.push(i.getAttribute('src')));
+  return out.map(x=>String(x||'').trim()).filter(Boolean);
+}
+async function removeFiles(urls){
+  const paths=[...new Set(urls.map(storagePath).filter(Boolean))];
+  if(!paths.length)return;
+  try{const {error}=await sb.storage.from('nyheter').remove(paths);if(error)console.error(error)}catch(e){console.error(e)}
+}
 function videoHtml(u){return String(u||'').split('\n').map(x=>videoOne(x.trim())).join('')}
 function videoOne(u){
   if(!/^https?:/i.test(u||''))return '';
@@ -399,9 +411,11 @@ function adminPage(){
     if(error)return toast('Misslyckades: '+error.message);
     toast(ns==='published'?'Publicerad':'Avpublicerad');await loadList();adminPage()});
   $('#app').querySelectorAll('[data-d]').forEach(b=>b.onclick=async()=>{
-    if(!confirm('Ta bort artikeln permanent?'))return;
+    if(!confirm('Ta bort artikeln och dess bilder/videor permanent?'))return;
+    const full=await getOne(b.dataset.d);
     const {error}=await sb.from('articles').delete().eq('id',b.dataset.d);
     if(error)return toast('Misslyckades: '+error.message);
+    if(full)await removeFiles(mediaUrls(full));
     toast('Borttagen');await loadList();adminPage()});
   $('#ss').onclick=async()=>{
     const s={id:1,name:$('#sn').value.trim()||'Nyheter',tagline:$('#st').value.trim(),cats:$('#sc').value.split(',').map(x=>x.trim()).filter(Boolean)};
@@ -421,6 +435,7 @@ async function editor(id){
   const ytLink=vlines.find(u=>!isVf(u))||'';
   const media=[...new Set([a.image,...(a.gallery||[])].filter(Boolean))].map(u=>({t:'i',u}));
   vlines.filter(isVf).forEach(u=>media.push({t:'v',u}));
+  const origUrls=mediaUrls(a),uploaded=[];
   $('#app').innerHTML='<div class="panel"><h2>'+(a.id?'Redigera artikel':'Ny artikel')+'</h2>'+
   '<label>Rubrik</label><input type="text" id="t" value="'+esc(a.title)+'" placeholder="Skriv en stark rubrik">'+
   '<label>Ingress (kort sammanfattning)</label><textarea id="s" rows="2">'+esc(a.summary)+'</textarea>'+
@@ -436,7 +451,7 @@ async function editor(id){
   '<input type="text" id="vu" value="'+esc(ytLink)+'" placeholder="https://...">'+
   '<label>Artikeltext</label><div class="toolbar"><button data-c="bold"><b>B</b></button><button data-c="italic"><i>I</i></button><button data-c="underline"><u>U</u></button><button data-b="h2">H2</button><button data-b="h3">H3</button><button data-c="insertUnorderedList">• Lista</button><button data-c="insertOrderedList">1. Lista</button><button data-b="blockquote">❝</button><button id="lk">🔗 Länk</button><button id="ii">🖼 Bild</button><button data-c="removeFormat">Rensa</button></div><div id="editor" contenteditable="true">'+clean(a.content)+'</div>'+
   '<input type="file" id="inl" accept="image/*" multiple hidden> <span class="meta" id="inlu"></span>'+
-  '<div class="actions"><button class="btn" id="pub">Spara & publicera</button><button class="btn dark" id="sv">Spara utkast</button><a class="btn alt" href="#/admin">Avbryt</a></div></div>';
+  '<div class="actions"><button class="btn" id="pub">Spara & publicera</button><button class="btn dark" id="sv">Spara utkast</button><a class="btn alt" id="cx" href="#/admin">Avbryt</a></div></div>';
   const ed=$('#editor');
   $('#app').querySelectorAll('.toolbar [data-c]').forEach(b=>b.onmousedown=e=>{e.preventDefault();document.execCommand(b.dataset.c)});
   $('#app').querySelectorAll('.toolbar [data-b]').forEach(b=>b.onmousedown=e=>{e.preventDefault();document.execCommand('formatBlock',false,b.dataset.b)});
@@ -453,7 +468,7 @@ async function editor(id){
     for(let i=0;i<files.length;i++){
       $('#inlu').textContent='Laddar upp '+(i+1)+' av '+files.length+'…';
       try{
-        const url=await uploadImage(files[i],'nyheter',1600);
+        const url=await uploadImage(files[i],'nyheter',1600);uploaded.push(url);
         const im=document.createElement('img');im.src=url;im.alt='';
         if(savedRange){savedRange.insertNode(im);savedRange.setStartAfter(im);savedRange.collapse(true)}
         else ed.appendChild(im);
@@ -479,7 +494,7 @@ async function editor(id){
       try{
         const isV=/^video\//.test(f.type)||/\.(mp4|mov|webm)$/i.test(f.name||'');
         const url=isV?await uploadVideo(f,'nyheter'):await uploadImage(f,'nyheter',1600);
-        media.push({t:isV?'v':'i',u:url});drawMedia();ok++;
+        uploaded.push(url);media.push({t:isV?'v':'i',u:url});drawMedia();ok++;
       }catch(err){fail++;lastErr=err.message||String(err)}
     }
     e.target.value='';busy--;
@@ -510,9 +525,12 @@ async function editor(id){
     const {data,error}=await q;
     $('#pub').disabled=$('#sv').disabled=false;
     if(error){console.error(error);return toast(/column|schema cache/i.test(error.message)?'Databasen saknar kolumner (kör SQL-filen i Supabase): '+error.message:'Kunde inte spara: '+error.message)}
+    const keep=new Set(mediaUrls(o));
+    await removeFiles([...origUrls,...uploaded].filter(u=>!keep.has(u)));
     toast(status==='published'?'Publicerad!':'Utkast sparat');
     location.hash=status==='published'?'#/artikel/'+data.id:'#/admin';
   };
+  $('#cx').onclick=()=>{removeFiles(uploaded)};
   $('#pub').onclick=()=>doSave('published');$('#sv').onclick=()=>doSave('draft');
 }
 
