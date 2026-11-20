@@ -66,6 +66,72 @@ article.full .cover{
     background-size:contain;
     background-color:#f3f7f1;
 }
+.stats-bar{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:35px;
+  flex-wrap:wrap;
+
+  margin:-10px 0 30px;
+  padding:18px 28px;
+
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:999px;
+
+  box-shadow:0 8px 28px rgba(11,46,27,.08);
+}
+
+.stats-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.stats-item .icon{
+  font-size:22px;
+}
+
+.stats-item .num{
+  font-size:22px;
+  font-weight:800;
+  color:var(--green);
+}
+
+.stats-item .txt{
+  font-size:14px;
+  color:var(--muted);
+  font-weight:600;
+}
+@media(max-width:700px){
+
+  .stats-bar{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+
+    border-radius:24px;
+    padding:18px;
+  }
+
+  .stats-item{
+    justify-content:center;
+    flex-direction:column;
+    gap:4px;
+    text-align:center;
+  }
+
+  .stats-item .num{
+    font-size:20px;
+  }
+
+  .stats-item .txt{
+    font-size:12px;
+  }
+
+}
+
 article.full .in{padding:32px 40px 42px}
 article.full h1{font-size:40px;line-height:1.1;margin:12px 0 12px;letter-spacing:-1px}
 article.full .lead{font-size:20px;color:#41574a;margin:0 0 20px;font-weight:500}
@@ -366,6 +432,38 @@ async function view(id){
       '</div>'+
     '</div>'+
     '</article>';
+const published =
+  list.filter(a => a.status === 'published').length;
+
+h += `
+<div class="stats-bar">
+
+  <div class="stats-item">
+    <span class="icon">📰</span>
+    <span class="num">${published}</span>
+    <span class="txt">Artiklar</span>
+  </div>
+
+  <div class="stats-item">
+    <span class="icon">📂</span>
+    <span class="num">${settings.cats.length}</span>
+    <span class="txt">Kategorier</span>
+  </div>
+
+  <div class="stats-item">
+    <span class="icon">💬</span>
+    <span class="num">0</span>
+    <span class="txt">Kommentarer</span>
+  </div>
+
+  <div class="stats-item">
+    <span class="icon">🔥</span>
+    <span class="num">Live</span>
+    <span class="txt">Nyhetsflöde</span>
+  </div>
+
+</div>
+`;
 
   $('#sh').onclick=()=>{
     navigator.clipboard && navigator.clipboard.writeText(location.href);
