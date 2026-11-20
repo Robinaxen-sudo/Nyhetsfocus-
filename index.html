@@ -386,6 +386,39 @@ function home(cat,q){
   if(cat)l=l.filter(a=>a.cat===cat);
   if(q)l=l.filter(a=>(a.title+' '+a.summary).toLowerCase().includes(q.toLowerCase()));
   let h=(!cat&&!q)?'<section class="intro"><span class="badge">🔥 Färskt just nu</span><h1>Allt om <em>influencers</em>, drama &amp; nyheter</h1><p>'+esc(settings.tagline)+'</p><a class="btn lime" href="#senaste" onclick="document.getElementById(\'senaste\').scrollIntoView({behavior:\'smooth\'});return false">Läs senaste ↓</a></section>':'';
+const published =
+  list.filter(a => a.status === 'published').length;
+
+h += `
+<div class="stats-bar">
+
+  <div class="stats-item">
+    <span class="icon">📰</span>
+    <span class="num">${published}</span>
+    <span class="txt">Artiklar</span>
+  </div>
+
+  <div class="stats-item">
+    <span class="icon">📂</span>
+    <span class="num">${settings.cats.length}</span>
+    <span class="txt">Kategorier</span>
+  </div>
+
+  <div class="stats-item">
+    <span class="icon">💬</span>
+    <span class="num">0</span>
+    <span class="txt">Kommentarer</span>
+  </div>
+
+  <div class="stats-item">
+    <span class="icon">⚡</span>
+    <span class="num">24/7</span>
+    <span class="txt">Uppdateringar</span>
+  </div>
+
+</div>
+`;
+
   h+='<div class="search"><input id="q" type="text" placeholder="Sök bland nyheter…" value="'+esc(q||'')+'"></div>';
   if(!l.length)h+='<div class="empty">Inga artiklar hittades.</div>';
   else{
